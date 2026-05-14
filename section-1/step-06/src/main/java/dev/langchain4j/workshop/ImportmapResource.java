@@ -1,4 +1,4 @@
-package dev.langchain4j.quarkus.workshop;
+package dev.langchain4j.workshop;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -8,7 +8,7 @@ import jakarta.ws.rs.Produces;
 import org.mvnpm.importmap.Aggregator;
 
 /**
- * Dynamically create the import map
+ * Dynamically create the import map for ES modules.
  */
 @ApplicationScoped
 @Path("/_importmap")
@@ -16,8 +16,6 @@ public class ImportmapResource {
 
     private String importmap;
 
-    // See https://github.com/WICG/import-maps/issues/235
-    // This does not seem to be supported by browsers yet...
     @GET
     @Path("/dynamic.importmap")
     @Produces("application/importmap+json")
@@ -35,6 +33,7 @@ public class ImportmapResource {
     @PostConstruct
     void init() {
         Aggregator aggregator = new Aggregator();
+
         // Add our own mappings
         aggregator.addMapping("icons/", "/icons/");
         aggregator.addMapping("components/", "/components/");
@@ -47,5 +46,5 @@ public class ImportmapResource {
             im.type = 'importmap';
             im.textContent = JSON.stringify(%s);
             document.currentScript.after(im);
-            """;
+        """;
 }
