@@ -1,25 +1,29 @@
-package dev.langchain4j.quarkus.workshop;
+package dev.langchain4j.workshop;
 
-import jakarta.enterprise.context.SessionScoped;
-
+import dev.langchain4j.cdi.spi.RegisterAIService;
 import dev.langchain4j.service.SystemMessage;
-import io.quarkiverse.langchain4j.RegisterAiService;
-import io.quarkiverse.langchain4j.ToolBox;
+import dev.langchain4j.service.TokenStream;
 
-@SessionScoped
-@RegisterAiService
+import jakarta.enterprise.context.ApplicationScoped;
+
+@RegisterAIService(
+    streamingChatModelName = "customer-support-agent",
+    contentRetrieverName = "doc-retriever",
+    tools = { BookingRepository.class }, 
+    scope = ApplicationScoped.class
+)
 public interface CustomerSupportAgent {
 
     @SystemMessage("""
             You are a customer support agent of a car rental company 'Miles of Smiles'.
             You are friendly, polite and concise.
             If the question is unrelated to car rental, you should politely redirect the customer to the right department.
-            
+
             When calling tools or functions, strictly use JSON objects,
             do not wrap in quotes or use plain strings.
-            
+
             Today is {current_date}.
-            """)
-    @ToolBox(BookingRepository.class)
-    String chat(String userMessage);
+        """
+    )
+    TokenStream chat(String userMessage);
 }

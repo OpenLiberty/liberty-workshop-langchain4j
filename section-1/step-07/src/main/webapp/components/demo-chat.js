@@ -33,10 +33,10 @@ export class DemoChat extends LitElement {
             // Keep the last "Reconnected" message if it exists
             const lastMessage = chatBot.messages.length > 0 ? chatBot.messages[chatBot.messages.length - 1] : null;
             const keepLastMessage = lastMessage &&
-                                   lastMessage.sender &&
-                                   lastMessage.sender.name === "System" &&
-                                   lastMessage.message &&
-                                   lastMessage.message.includes("Reconnected");
+                lastMessage.sender &&
+                lastMessage.sender.name === "System" &&
+                lastMessage.message &&
+                lastMessage.message.includes("Reconnected");
 
             if (keepLastMessage) {
                 // Remove all messages except the last one

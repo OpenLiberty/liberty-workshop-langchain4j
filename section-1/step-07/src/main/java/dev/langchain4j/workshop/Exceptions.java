@@ -1,9 +1,10 @@
-package dev.langchain4j.quarkus.workshop;
+package dev.langchain4j.workshop;
 
 public class Exceptions {
+
     public static class CustomerNotFoundException extends RuntimeException {
-        public CustomerNotFoundException(String customerName, String customerSurname) {
-            super("Customer not found: %s %s".formatted(customerName, customerSurname));
+        public CustomerNotFoundException(String firstName, String lastName) {
+            super("Customer not found: %s %s".formatted(firstName, lastName));
         }
     }
 
