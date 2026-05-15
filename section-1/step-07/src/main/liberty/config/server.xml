@@ -17,6 +17,7 @@
     />
 
     <!-- Application configuration -->
+    <applicationManager autoExpand="true"/>
     <webApplication
         id="langchain4j-workshop"
         location="langchain4j-workshop.war"

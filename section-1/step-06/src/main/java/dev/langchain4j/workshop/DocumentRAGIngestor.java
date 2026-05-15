@@ -1,6 +1,6 @@
 package dev.langchain4j.workshop;
 
-import dev.langchain4j.data.document.loader.FileSystemDocumentLoader;
+import dev.langchain4j.data.document.loader.ClassPathDocumentLoader;
 
 import dev.langchain4j.data.document.Document;
 import dev.langchain4j.data.document.parser.TextDocumentParser;
@@ -61,8 +61,7 @@ public class DocumentRAGIngestor {
             .build();
 
         // Load the document(s) from the configured location and ingest them
-        Path ragDocsPath = Paths.get(getClass().getClassLoader().getResource(ragDocsDir).toURI());
-        List<Document> docs = FileSystemDocumentLoader.loadDocuments(ragDocsPath, new TextDocumentParser());
+        List<Document> docs = ClassPathDocumentLoader.loadDocuments(ragDocsDir, new TextDocumentParser());
         ingestor.ingest(docs);
 
         logger.info("Ingested {} docs in {}ms", docs.size(), System.currentTimeMillis() - start);
