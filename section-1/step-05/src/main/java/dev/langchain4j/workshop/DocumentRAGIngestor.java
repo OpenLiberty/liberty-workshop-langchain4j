@@ -1,6 +1,6 @@
 package dev.langchain4j.workshop;
 
-import dev.langchain4j.data.document.loader.FileSystemDocumentLoader;
+import dev.langchain4j.data.document.loader.ClassPathDocumentLoader;
 
 import dev.langchain4j.data.document.Document;
 import dev.langchain4j.data.document.parser.TextDocumentParser;
@@ -20,8 +20,6 @@ import jakarta.inject.Inject;
 
 import java.io.File;
 import java.net.URISyntaxException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -62,8 +60,7 @@ public class DocumentRAGIngestor {
             .build();
 
         // Load the document(s) from the configured location and ingest them
-        Path ragDocsPath = Paths.get(getClass().getClassLoader().getResource(ragDocsDir).toURI());
-        List<Document> docs = FileSystemDocumentLoader.loadDocuments(ragDocsPath, new TextDocumentParser());
+        List<Document> docs = ClassPathDocumentLoader.loadDocuments(ragDocsDir, new TextDocumentParser());
         ingestor.ingest(docs);
 
         logger.info("Ingested {} docs in {}ms", docs.size(), System.currentTimeMillis() - start);
