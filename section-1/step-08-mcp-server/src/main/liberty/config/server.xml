@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<server description="LangChain4J Workshop Server">
+
+    <!-- Enable features -->
+    <featureManager>
+        <feature>restfulWS-3.1</feature>
+        <feature>mpRestClient-4.0</feature>
+        <feature>mcpServer-1.0</feature>
+    </featureManager>
+
+    <!-- HTTP endpoint configuration -->
+    <httpEndpoint
+        id="defaultHttpEndpoint"
+        httpPort="9081"
+        httpsPort="9444"
+        host="*"
+    />
+
+    <!-- Application configuration -->
+    <applicationManager autoExpand="true"/>
+    <webApplication
+        id="mcp-weather-service"
+        location="mcp-weather-service.war"
+        contextRoot="/">
+    </webApplication>
+
+    <!-- Logging configuration -->
+    <logging
+        traceSpecification="*=info:dev.langchain4j.*=all"
+        maxFileSize="20"
+        maxFiles="10"
+        consoleLogLevel="INFO"
+    />
+
+    <!-- Basic user registry -->
+    <basicRegistry id="basic" realm="BasicRealm">
+        <user name="admin" password="admin" />
+        <user name="user" password="user" />
+    </basicRegistry>
+
+    <sslDefault sslRef="defaultSSLConfig" />
+
+    <ssl id="defaultSSLConfig" trustStoreRef="javaTrustStore"/>
+
+    <keyStore
+        id="defaultKeyStore" 
+        location="key.p12" 
+        type="PKCS12" 
+        password="password"
+    />
+
+    <keyStore
+        id="javaTrustStore"
+        location="${java.home}/lib/security/cacerts"
+        password="changeit"
+    />
+</server>
