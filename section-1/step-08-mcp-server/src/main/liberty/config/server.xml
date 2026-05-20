@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<server description="LangChain4J Workshop Server">
+<server description="MCP Weather Service">
 
     <!-- Enable features -->
     <featureManager>
-        <feature>restfulWS-3.1</feature>
-        <feature>mpRestClient-4.0</feature>
         <feature>mcpServer-1.0</feature>
+        <feature>enterpriseBeansLite-4.0</feature>
+        <feature>transportSecurity-1.0</feature>
+        <feature>beanValidation-3.0</feature>
+        <feature>mpRestClient-4.0</feature>
     </featureManager>
 
     <!-- HTTP endpoint configuration -->
