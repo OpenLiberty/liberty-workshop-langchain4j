@@ -1,11 +1,11 @@
 package dev.langchain4j.workshop;
 
-import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
-
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
+
+import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 @RegisterRestClient(configKey = "weatherclient", baseUri = "https://api.open-meteo.com/v1/forecast")
 public interface WeatherClient {

@@ -1,7 +1,4 @@
-package dev.langchain4j.liberty.workshop.producers;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+package dev.langchain4j.workshop;
 
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.store.embedding.EmbeddingStore;
@@ -9,9 +6,10 @@ import dev.langchain4j.store.embedding.pgvector.PgVectorEmbeddingStore;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Produces;
-import jakarta.inject.Inject;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * CDI producer for creating and configuring the EmbeddingService instance.
