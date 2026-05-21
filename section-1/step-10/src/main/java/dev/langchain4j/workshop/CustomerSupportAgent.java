@@ -45,7 +45,8 @@ public interface CustomerSupportAgent {
             CustomerNotFoundException.class,
             BookingNotFoundException.class
         },
-        maxRetries = 2
+        maxRetries = 2,
+        delay = 100
     )
     @Fallback(
         fallbackMethod = "chatFallback",

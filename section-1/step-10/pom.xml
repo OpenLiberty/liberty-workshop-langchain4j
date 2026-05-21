@@ -33,6 +33,35 @@
         <postgresql.version>42.7.10</postgresql.version>
     </properties>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>dev.langchain4j</groupId>
+                <artifactId>langchain4j-bom</artifactId>
+                <version>${langchain4j.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>dev.langchain4j.cdi</groupId>
+                <artifactId>langchain4j-cdi-core</artifactId>
+                <version>${langchain4j.cdi.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>dev.langchain4j.cdi</groupId>
+                <artifactId>langchain4j-cdi-portable-ext</artifactId>
+                <version>${langchain4j.cdi.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>dev.langchain4j.cdi.mp</groupId>
+                <artifactId>langchain4j-cdi-mp</artifactId>
+                <version>${langchain4j.cdi.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
         <!-- Jakarta EE API -->
         <dependency>
@@ -51,73 +80,63 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- Smallrye Fault Tolerance -->
-        <dependency>
-            <groupId>io.smallrye</groupId>
-            <artifactId>smallrye-fault-tolerance</artifactId>
-            <version>6.11.1</version>
-        </dependency>
-
         <!-- LangChain4J OpenAI -->
         <dependency>
             <groupId>dev.langchain4j</groupId>
             <artifactId>langchain4j-open-ai</artifactId>
-            <version>${langchain4j.version}</version>
-        </dependency>
-
-        <!-- LangChain4J CDI -->
-        <dependency>
-            <groupId>dev.langchain4j.cdi</groupId>
-            <artifactId>langchain4j-cdi-core</artifactId>
-            <version>${langchain4j.cdi.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>dev.langchain4j.cdi</groupId>
-            <artifactId>langchain4j-cdi-portable-ext</artifactId>
-            <version>${langchain4j.cdi.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>dev.langchain4j.cdi.mp</groupId>
-            <artifactId>langchain4j-cdi-config</artifactId>
-            <version>${langchain4j.cdi.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>dev.langchain4j.cdi</groupId>
-            <artifactId>langchain4j-cdi-telemetry</artifactId>
-            <version>1.0.0-Beta1</version>
-        </dependency>
-        <dependency>
-            <groupId>dev.langchain4j.cdi</groupId>
-            <artifactId>langchain4j-cdi-fault-tolerance</artifactId>
-            <version>1.0.0-Beta1</version>
         </dependency>
 
         <!-- LangChain4j HTTP Client -->
         <dependency>
             <groupId>dev.langchain4j</groupId>
             <artifactId>langchain4j-http-client-jdk</artifactId>
-            <version>1.14.1</version>
         </dependency>
 
         <!-- LangChain4j MCP -->
         <dependency>
             <groupId>dev.langchain4j</groupId>
             <artifactId>langchain4j-mcp</artifactId>
-            <version>${langchain4j.beta.version}</version>
         </dependency>
 
         <!-- LangChain4j Embeddings -->
         <dependency>
             <groupId>dev.langchain4j</groupId>
             <artifactId>langchain4j-embeddings-all-minilm-l6-v2</artifactId>
-            <version>${langchain4j.beta.version}</version>
         </dependency>
 
         <!-- LangChain4j Postgres -->
         <dependency>
             <groupId>dev.langchain4j</groupId>
             <artifactId>langchain4j-pgvector</artifactId>
-            <version>${langchain4j.beta.version}</version>
+        </dependency>
+
+        <!-- LangChain4J CDI -->
+        <dependency>
+            <groupId>dev.langchain4j.cdi</groupId>
+            <artifactId>langchain4j-cdi-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>dev.langchain4j.cdi</groupId>
+            <artifactId>langchain4j-cdi-portable-ext</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>dev.langchain4j.cdi.mp</groupId>
+            <artifactId>langchain4j-cdi-config</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>dev.langchain4j.cdi.mp</groupId>
+            <artifactId>langchain4j-cdi-telemetry</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>dev.langchain4j.cdi.mp</groupId>
+            <artifactId>langchain4j-cdi-fault-tolerance</artifactId>
+        </dependency>
+
+        <!-- Smallrye Fault Tolerance -->
+        <dependency>
+            <groupId>io.smallrye</groupId>
+            <artifactId>smallrye-fault-tolerance</artifactId>
+            <version>6.11.1</version>
         </dependency>
 
         <!-- Postgres -->
