@@ -1,18 +1,17 @@
-package dev.langchain4j.quarkus.workshop;
+package dev.langchain4j.workshop;
 
 import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.guardrail.InputGuardrail;
 import dev.langchain4j.guardrail.InputGuardrailResult;
+
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 
 @ApplicationScoped
 public class PromptInjectionGuard implements InputGuardrail {
 
-    private final PromptInjectionDetectionService service;
-
-    public PromptInjectionGuard(PromptInjectionDetectionService service) {
-        this.service = service;
-    }
+    @Inject
+    private PromptInjectionDetectionService service;
 
     @Override
     public InputGuardrailResult validate(UserMessage userMessage) {
