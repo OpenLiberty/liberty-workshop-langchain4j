@@ -1,17 +1,21 @@
 package com.carmanagement.agentic.agents;
 
-import io.quarkiverse.langchain4j.ToolBox;
-
-import com.carmanagement.agentic.tools.CleaningTool;
-import com.carmanagement.model.CarInfo;
 import dev.langchain4j.agentic.Agent;
+import dev.langchain4j.cdi.spi.RegisterSimpleAgent;
 import dev.langchain4j.service.SystemMessage;
 import dev.langchain4j.service.UserMessage;
+import dev.langchain4j.service.V;
+import jakarta.enterprise.context.ApplicationScoped;
 
-// --8<-- [start:cleaningAgent]
 /**
  * Agent that determines what cleaning services to request.
  */
+@RegisterSimpleAgent(
+    chatModelName = "cleaning-agent",
+    chatMemoryName = "cleaning-agent-memory",
+    toolNames = { "cleaning-tool" }, 
+    scope = ApplicationScoped.class
+)
 public interface CleaningAgent {
 
     @SystemMessage("""
@@ -19,22 +23,22 @@ public interface CleaningAgent {
         It is your job to submit a request to the provided requestCleaning function to take action based on the provided feedback.
         Be specific about what services are needed.
         If no cleaning is needed based on the feedback, respond with "CLEANING_NOT_REQUIRED".
-        """)
+    """)
     @UserMessage("""
         Car Information:
-        Make: {carInfo.make}
-        Model: {carInfo.model}
-        Year: {carInfo.year}
-        Car Number: {carNumber}
+        Make: {{carMake}}
+        Model: {{carModel}}
+        Year: {{carYear}}
+        Car Number: {{carNumber}}
         
-        Feedback: {feedback}
-        """)
+        Feedback: {{feedback}}
+    """)
     @Agent("Cleaning specialist. Determines what cleaning services are needed.")
-    @ToolBox(CleaningTool.class)
     String processCleaning(
-            CarInfo carInfo,
-            Integer carNumber,
-            String feedback);
+        @V("carMake") String carMake,
+        @V("carModel") String carModel,
+        @V("carYear") Integer carYear,
+        @V("carNumber") Integer carNumber,
+        @V("feedback") String feedback
+    );
 }
-// --8<-- [end:cleaningAgent]
-

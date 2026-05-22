@@ -1,23 +1,29 @@
 package com.carmanagement.service;
 
+import org.slf4j.Logger;
+
+import com.carmanagement.agentic.agents.CleaningAgent;
+import com.carmanagement.managers.CarInfoManager;
+import com.carmanagement.models.CarInfo;
+import com.carmanagement.models.CarStatus;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
-
-import com.carmanagement.agentic.agents.CleaningAgent;
-import com.carmanagement.model.CarInfo;
-import com.carmanagement.model.CarStatus;
 
 /**
  * Service for managing car returns from various operations.
  */
 @ApplicationScoped
 public class CarManagementService {
-
-        
-    // --8<-- [start:processCarReturn]
     @Inject
-    CleaningAgent cleaningAgent;
+    private Logger logger;
+
+    @Inject
+    private CarInfoManager carInfoManager;
+
+    @Inject
+    private CleaningAgent cleaningAgent;
 
     /**
      * Process a car return from any operation.
@@ -28,21 +34,30 @@ public class CarManagementService {
      */
     @Transactional
     public String processCarReturn(Integer carNumber, String feedback) {
-        CarInfo carInfo = CarInfo.findById(carNumber);
-        if (carInfo == null) {
-            return "Car not found with number: " + carNumber;
+        try {
+            CarInfo carInfo = carInfoManager.getCar(carNumber);
+            if (carInfo == null) {
+                return "Car not found with number: " + carNumber;
+            }
+
+            // Process the car result
+            String result = cleaningAgent.processCleaning(
+                carInfo.getMake(),
+                carInfo.getModel(),
+                carInfo.getYear(),
+                carNumber,
+                feedback
+            );
+
+            if (result.toUpperCase().contains("CLEANING_NOT_REQUIRED")) {
+                carInfo.setStatus(CarStatus.AVAILABLE);
+                carInfoManager.updateCar(carInfo);
+            }
+
+            return result;
+        } catch (Exception e) {
+            logger.error("Error procesing car return: {}", e.getMessage(), e);
+            throw e;
         }
-
-        // Process the car result
-        String result = cleaningAgent.processCleaning(carInfo, carNumber, feedback);
-
-        if (result.toUpperCase().contains("CLEANING_NOT_REQUIRED")) {
-            carInfo.status = CarStatus.AVAILABLE;
-            carInfo.persist();
-        }
-
-        return result;
     }
-    // --8<-- [end:processCarReturn]
 }
-

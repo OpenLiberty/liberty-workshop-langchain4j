@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Function to load all cars from the API
 function loadAllCars() {
-    fetch('/cars')
+    fetch('/api/cars')
         .then(response => {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
@@ -221,7 +221,7 @@ function processFeedback(event, carId, status) {
         'AT_CLEANING': 'cleaning'
     };
 
-    fetch(`/car-management/return/${carId}?feedback=${encodeURIComponent(feedback)}`, { method: 'POST' })
+    fetch(`/api/car-management/return/${carId}?feedback=${encodeURIComponent(feedback)}`, { method: 'POST' })
     .then(response => {
         if (!response.ok) throw new Error('Network response was not ok');
         return response.text();
@@ -359,5 +359,4 @@ function showNotification(message) {
         }, 3000);
     }
 }
-
 
