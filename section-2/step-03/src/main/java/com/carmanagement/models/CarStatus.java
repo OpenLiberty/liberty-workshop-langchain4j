@@ -1,4 +1,4 @@
-package com.carmanagement.model;
+package com.carmanagement.models;
 
 /**
  * Enum representing the possible statuses of a car in the rental fleet.
@@ -24,5 +24,3 @@ public enum CarStatus {
         return value;
     }
 }
-
-

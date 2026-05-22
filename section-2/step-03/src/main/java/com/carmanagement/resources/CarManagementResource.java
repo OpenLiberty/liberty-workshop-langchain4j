@@ -1,21 +1,27 @@
-package com.carmanagement.resource;
+package com.carmanagement.resources;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.carmanagement.services.CarManagementService;
+
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.Response;
-
-import org.jboss.resteasy.reactive.RestQuery;
-
-import io.quarkus.logging.Log;
-
-import com.carmanagement.service.CarManagementService;
 
 /**
  * REST resource for car management operations.
  */
+@ApplicationScoped
 @Path("/car-management")
+@Produces("application/json")
 public class CarManagementResource {
+    private static final Logger logger = LoggerFactory.getLogger(CarManagementResource.class);
 
     @Inject
     CarManagementService carManagementService;
@@ -29,18 +35,19 @@ public class CarManagementResource {
      */
     @POST
     @Path("/return/{carNumber}")
-    public Response processReturn(Integer carNumber, @RestQuery String feedback) {
+    public Response processReturn(
+        @PathParam("carNumber") Integer carNumber,
+        @QueryParam("feedback") String feedback
+    ) {
 
         try {
             String result = carManagementService.processCarReturn(carNumber, feedback != null ? feedback : "");
             return Response.ok(result).build();
         } catch (Exception e) {
-            Log.error(e.getMessage(), e);
+            logger.error(e.getMessage(), e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("Error processing car return: " + e.getMessage())
-                    .build();
+                .entity("Error processing return: " + e.getMessage())
+                .build();
         }
     }
 }
-
-
