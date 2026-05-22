@@ -31,9 +31,9 @@ public class CarInfo implements Serializable {
     @Column(name = "id", nullable = false)
     private int id;
 
-    public String make;
-    public String model;
-    public Integer year;
+    private String make;
+    private String model;
+    private Integer year;
 
     @Enumerated(EnumType.STRING)
     private CarStatus status;

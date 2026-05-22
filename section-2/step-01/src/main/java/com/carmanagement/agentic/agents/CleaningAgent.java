@@ -1,6 +1,5 @@
 package com.carmanagement.agentic.agents;
 
-import dev.langchain4j.agentic.Agent;
 import dev.langchain4j.cdi.spi.RegisterSimpleAgent;
 import dev.langchain4j.service.SystemMessage;
 import dev.langchain4j.service.UserMessage;
@@ -11,7 +10,9 @@ import jakarta.enterprise.context.ApplicationScoped;
  * Agent that determines what cleaning services to request.
  */
 @RegisterSimpleAgent(
-    chatModelName = "cleaning-agent",
+    name = "cleaning-agent",
+    description = "Cleaning specialist. Determines what cleaning services are needed.",
+    chatModelName = "chat-model",
     chatMemoryName = "cleaning-agent-memory",
     toolNames = { "cleaning-tool" }, 
     scope = ApplicationScoped.class
@@ -33,7 +34,6 @@ public interface CleaningAgent {
         
         Feedback: {{feedback}}
     """)
-    @Agent("Cleaning specialist. Determines what cleaning services are needed.")
     String processCleaning(
         @V("carMake") String carMake,
         @V("carModel") String carModel,
