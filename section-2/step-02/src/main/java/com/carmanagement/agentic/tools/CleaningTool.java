@@ -1,17 +1,28 @@
 package com.carmanagement.agentic.tools;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
 
-import com.carmanagement.model.CarInfo;
-import com.carmanagement.model.CarStatus;
+import com.carmanagement.managers.CarInfoManager;
+import com.carmanagement.models.CarInfo;
+import com.carmanagement.models.CarStatus;
+
 import dev.langchain4j.agent.tool.Tool;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import jakarta.transaction.Transactional;
 
 /**
  * Tool for requesting cleaning operations.
  */
-@ApplicationScoped
+@Named("cleaning-tool")
+@RequestScoped
 public class CleaningTool {
+    @Inject
+    private Logger logger;
+
+    @Inject
+    private CarInfoManager carInfoManager;
 
     /**
      * Requests a cleaning based on the provided parameters.
@@ -28,50 +39,71 @@ public class CleaningTool {
      * @return A summary of the cleaning request
      */
     @Tool("Requests a cleaning with the specified options")
-    @Transactional    
+    @Transactional
     public String requestCleaning(
-            Integer carNumber,
-            String carMake,
-            String carModel,
-            Integer carYear,
-            boolean exteriorWash,
-            boolean interiorCleaning,
-            boolean detailing,
-            boolean waxing,
-            String requestText) {
-        
-        // In a real implementation, this would make an API call to a cleaning service
-        // or update a database with the cleaning request
+        Integer carNumber,
+        String carMake,
+        String carModel,
+        Integer carYear,
+        boolean exteriorWash,
+        boolean interiorCleaning,
+        boolean detailing,
+        boolean waxing,
+        String requestText
+    ) {
+        logger.info("Cleaning requested for car {} ({} {} {}): {}", carNumber, carYear, carMake, carModel, requestText);
+
+        /*
+         * In a real implementation, this would make an API call to a cleaning service or update a database with the
+         * cleaning request
+         */
         
         // Update car status to AT_CLEANING
-        CarInfo carInfo = CarInfo.findById(carNumber);
+        CarInfo carInfo = carInfoManager.getCar(carNumber);
+
         if (carInfo != null) {
-            carInfo.status = CarStatus.AT_CLEANING;
-            carInfo.persist();
+            carInfo.setStatus(CarStatus.AT_CLEANING);
+            logger.info("Updating status for car {} to {}", carNumber, carInfo.getStatus());
+            carInfoManager.updateCar(carInfo);
         }
         
-        String result = generateCleaningSummary(carNumber, carMake, carModel, carYear,
-                                              exteriorWash, interiorCleaning, detailing,
-                                              waxing, requestText);
-        System.out.println("\uD83D\uDE97 CleaningTool result: " + result);
+        var result = generateCleaningSummary(
+            carNumber,
+            carMake,
+            carModel,
+            carYear,
+            exteriorWash,
+            interiorCleaning,
+            detailing,
+            waxing,
+            requestText
+        );
+        logger.info("\uD83D\uDE97 CleaningTool result: {}", result);
         return result;
     }
 
     private String generateCleaningSummary(
-            Integer carNumber,
-            String carMake,
-            String carModel,
-            Integer carYear,
-            boolean exteriorWash,
-            boolean interiorCleaning,
-            boolean detailing,
-            boolean waxing,
-            String requestText) {
+        Integer carNumber,
+        String carMake,
+        String carModel,
+        Integer carYear,
+        boolean exteriorWash,
+        boolean interiorCleaning,
+        boolean detailing,
+        boolean waxing,
+        String requestText
+    ) {
 
-        StringBuilder summary = new StringBuilder();
-        summary.append("Cleaning requested for ").append(carMake).append(" ")
-               .append(carModel).append(" (").append(carYear).append("), Car #")
-               .append(carNumber).append(":\n");
+        var summary = new StringBuilder();
+        summary.append("Cleaning requested for ")
+            .append(carMake)
+            .append(" ")
+            .append(carModel)
+            .append(" (")
+            .append(carYear)
+            .append("), Car #")
+            .append(carNumber)
+            .append(":\n");
         
         if (exteriorWash) {
             summary.append("- Exterior wash\n");
@@ -96,5 +128,3 @@ public class CleaningTool {
         return summary.toString();
     }
 }
-
-

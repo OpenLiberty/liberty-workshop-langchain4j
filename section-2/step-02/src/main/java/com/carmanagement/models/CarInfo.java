@@ -34,6 +34,7 @@ public class CarInfo implements Serializable {
     private String make;
     private String model;
     private Integer year;
+    private String condition;
 
     @Enumerated(EnumType.STRING)
     private CarStatus status;
@@ -74,6 +75,14 @@ public class CarInfo implements Serializable {
         return status;
     }   
 
+    public String getCondition() {
+        return condition;
+    }
+
+    public void setCondition(String condition) {
+        this.condition = condition;
+    }
+
     public void setStatus(CarStatus status) {
         this.status = status;
     }
@@ -85,6 +94,7 @@ public class CarInfo implements Serializable {
         + "  make=" + make + ",\n"
         + "  model=" + model + ",\n"
         + "  year=" + year + ",\n"
+        + "  condition=" + condition + ",\n"
         + "  status=" + status + "\n"
         + "}";
     }

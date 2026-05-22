@@ -3,7 +3,7 @@ package com.carmanagement.resources;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.carmanagement.service.CarManagementService;
+import com.carmanagement.services.CarManagementService;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
