@@ -1,4 +1,4 @@
-package com.carmanagement.model;
+package com.carmanagement.models;
 
 /**
  * Record representing the conditions of a car.
