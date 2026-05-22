@@ -1,13 +1,23 @@
 package com.carmanagement.agentic.agents;
 
-import com.carmanagement.model.CarInfo;
-import dev.langchain4j.agentic.Agent;
+import dev.langchain4j.cdi.spi.RegisterSimpleAgent;
 import dev.langchain4j.service.SystemMessage;
 import dev.langchain4j.service.UserMessage;
+import dev.langchain4j.service.V;
+
+import jakarta.enterprise.context.ApplicationScoped;
 
 /**
  * Agent that analyzes feedback to determine if a cleaning is needed.
  */
+@RegisterSimpleAgent(
+    name = "cleaning-feedback-agent",
+    description = "Cleaning analyzer. Using feedback, determines if a cleaning is needed.",
+    chatModelName = "chat-model",
+    chatMemoryName = "cleaning-feedback-agent-memory",
+    outputKey = "cleaningRequest",
+    scope = ApplicationScoped.class
+)
 public interface CleaningFeedbackAgent {
 
     @SystemMessage("""
@@ -19,22 +29,22 @@ public interface CleaningFeedbackAgent {
         Be specific about what type of cleaning is needed (exterior, interior, detailing, waxing).
         If no interior or exterior car cleaning services are needed based on the feedback, respond with "CLEANING_NOT_REQUIRED".
         Include the reason for your choice but keep your response short.
-        """)
+    """)
     @UserMessage("""
         Car Information:
-        Make: {carInfo.make}
-        Model: {carInfo.model}
-        Year: {carInfo.year}
-        Previous Condition: {carInfo.condition}
+        Make: {{carMake}}
+        Model: {{carModel}}
+        Year: {{carYear}}
+        Previous Condition: {{carCondition}}
         
-        Feedback: {feedback}
-        """)
-    @Agent(description = "Cleaning analyzer. Using feedback, determines if a cleaning is needed.",
-            outputKey = "cleaningRequest")
+        Feedback: {{feedback}}
+    """)
     String analyzeForCleaning(
-            CarInfo carInfo,
-            Integer carNumber,
-            String feedback);
+        @V("carMake") String carMake,
+        @V("carModel") String carModel,
+        @V("carYear") Integer carYear,
+        @V("carNumber") Integer carNumber,
+        @V("carCondition") String carCondition,
+        @V("feedback") String feedback
+    );
 }
-
-

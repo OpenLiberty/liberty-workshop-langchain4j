@@ -1,4 +1,4 @@
-package com.carmanagement.model;
+package com.carmanagement.models;
 
 /**
  * Enum representing the type of possible car assignments for car processing
