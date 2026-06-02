@@ -1,7 +1,5 @@
 package com.carmanagement.agentic.workflows;
 
-import com.carmanagement.agentic.agents.CarConditionFeedbackAgent;
-import com.carmanagement.agentic.agents.CleaningAgent;
 import com.carmanagement.models.CarAssignment;
 import com.carmanagement.models.CarConditions;
 
@@ -43,6 +41,8 @@ public interface CarProcessingWorkflow {
             carAssignment = CarAssignment.MAINTENANCE;
         } else if (isRequired(cleaningRequest)) {
             carAssignment = CarAssignment.CLEANING;
+        } else {
+            carAssignment = CarAssignment.NONE;
         }
 
         return new CarConditions(carCondition, carAssignment);

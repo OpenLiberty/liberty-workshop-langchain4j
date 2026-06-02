@@ -23,24 +23,28 @@ public interface CleaningAgent {
 
     @SystemMessage("""
         You handle intake for the cleaning department of a car rental company.
-        It is your job to submit a request to the provided requestCleaning function to take action based on the provided feedback.
-        Be specific about what services are needed.
-        If no cleaning is needed based on the feedback, respond with "CLEANING_NOT_REQUIRED".
     """)
     @UserMessage("""
+        Taking into account all provided feedback, determine if the car needs a cleaning.
+        If the feedback indicates the car is dirty, has stains, or any other cleanliness issues,
+        call the provided tool and recommend appropriate cleaning services (exterior wash, interior cleaning, waxing, detailing).
+        Be specific about what services are needed.
+        If no specific cleaning request is provided, request a standard exterior wash.
+
         Car Information:
         Make: {{carMake}}
         Model: {{carModel}}
         Year: {{carYear}}
         Car Number: {{carNumber}}
         
-        Feedback: {{feedback}}
+        Cleaning Request:
+        {cleaningRequest}
     """)
     String processCleaning(
         @V("carMake") String carMake,
         @V("carModel") String carModel,
         @V("carYear") Integer carYear,
         @V("carNumber") Integer carNumber,
-        @V("feedback") String feedback
+        @V("cleaningRequest") String cleaningRequest
     );
 }
