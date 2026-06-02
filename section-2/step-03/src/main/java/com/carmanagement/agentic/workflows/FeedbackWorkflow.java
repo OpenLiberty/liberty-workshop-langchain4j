@@ -1,9 +1,5 @@
 package com.carmanagement.agentic.workflows;
 
-import com.carmanagement.agentic.agents.CleaningFeedbackAgent;
-import com.carmanagement.agentic.agents.MaintenanceFeedbackAgent;
-
-import dev.langchain4j.agentic.Agent;
 import dev.langchain4j.cdi.spi.RegisterParallelAgent;
 
 /**

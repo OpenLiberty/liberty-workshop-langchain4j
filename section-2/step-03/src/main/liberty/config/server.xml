@@ -53,11 +53,11 @@
     <dataSource id="default" jndiName="jdbc/postgresql">
         <jdbcDriver libraryRef="postgresql-library" />
         <properties.postgresql
-            serverName="localhost"
-            portNumber="5432"
-            databaseName="postgres"
-            user="postgres"
-            password="password"
+            serverName="${vector.store.hostname}"
+            portNumber="${vector.store.port}"
+            databaseName="${vector.store.database}"
+            user="${vector.store.username}"
+            password="${vector.store.password}"
         />
     </dataSource>
 </server>
