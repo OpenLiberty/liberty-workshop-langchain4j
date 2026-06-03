@@ -1,33 +1,37 @@
 package com.carmanagement.agentic.agents;
 
-import com.carmanagement.model.CarInfo;
-import com.carmanagement.model.FeedbackAnalysisResults;
-import dev.langchain4j.agentic.declarative.SupervisorAgent;
+import com.carmanagement.models.FeedbackAnalysisResults;
+
 import dev.langchain4j.agentic.declarative.SupervisorRequest;
+import dev.langchain4j.cdi.spi.RegisterSupervisorAgent;
 
 /**
  * Supervisor agent that orchestrates the entire car processing workflow.
  * Coordinates action agents based on analysis results of the car condition.
  */
+@RegisterSupervisorAgent(
+    name = "fleet-supervisor-agent",
+    subAgentNames = {
+        "pricing-agent",
+        "disposition-agent",
+        "maintenance-agent",
+        "cleaning-agent"
+    },
+    outputKey = "supervisorDecision"
+)
 public interface FleetSupervisorAgent {
 
     /**
      * Main method to coordinate car processing based on feedback.
      * This is the entry point for the supervisor agent.
      */
-    @SupervisorAgent(
-            outputKey = "supervisorDecision",
-            subAgents = {
-                    PricingAgent.class,
-                    DispositionAgent.class,
-                    MaintenanceAgent.class,
-                    CleaningAgent.class
-            }
-    )
     String superviseCarProcessing(
-            CarInfo carInfo,
-            Integer carNumber,
-            FeedbackAnalysisResults feedbackAnalysisResults
+        String carMake,
+        String carModel,
+        Integer carYear,
+        Integer carNumber,
+        String carCondition,
+        FeedbackAnalysisResults feedbackAnalysisResults
     );
 
     /**
@@ -46,12 +50,15 @@ public interface FleetSupervisorAgent {
      */
     @SupervisorRequest
     static String request(
-            CarInfo carInfo,
-            Integer carNumber,
-            FeedbackAnalysisResults feedbackAnalysisResults
+        String carMake,
+        String carModel,
+        Integer carYear,
+        Integer carNumber,
+        String carCondition,
+        FeedbackAnalysisResults feedbackAnalysisResults
     ) {
         boolean dispositionRequired = feedbackAnalysisResults.dispositionAnalysis() != null &&
-                feedbackAnalysisResults.dispositionAnalysis().toUpperCase().contains("DISPOSITION_REQUIRED");
+            feedbackAnalysisResults.dispositionAnalysis().toUpperCase().contains("DISPOSITION_REQUIRED");
 
         String noDispositionMessage = """
                No disposition has been requested.
@@ -61,23 +68,23 @@ public interface FleetSupervisorAgent {
                 - DO NOT invoke DispositionAgent
                 - Only invoke MaintenanceAgent if maintenance needed
                 - Only invoke CleaningAgent if cleaning needed
-               """;
+            """;
 
         // Disposition required - complex path
         String dispositionMessage = """
-            The car has to be disposed.
+                The car has to be disposed.
 
-            STEP 1: Invoke PricingAgent to get car value
-            STEP 2: Invoke DispositionAgent to decide disposition action (SCRAP/SELL/DONATE/KEEP)
-            STEP 3: If DispositionAgent decides KEEP:
-                    - Invoke MaintenanceAgent if maintenance needed
-                    - Invoke CleaningAgent if cleaning needed
-            
-            IMPORTANT: When invoking DispositionAgent:
-            - Pass carValue as a STRING with dollar sign (e.g., "$10,710" not 10710)
-            - Use the EXACT format from PricingAgent's response
-            
-            Follow the decision logic in your system message carefully.
+                STEP 1: Invoke PricingAgent to get car value
+                STEP 2: Invoke DispositionAgent to decide disposition action (SCRAP/SELL/DONATE/KEEP)
+                STEP 3: If DispositionAgent decides KEEP:
+                        - Invoke MaintenanceAgent if maintenance needed
+                        - Invoke CleaningAgent if cleaning needed
+                
+                IMPORTANT: When invoking DispositionAgent:
+                - Pass carValue as a STRING with dollar sign (e.g., "$10,710" not 10710)
+                - Use the EXACT format from PricingAgent's response
+                
+                Follow the decision logic in your system message carefully.
             """;
 
         return String.format("""
@@ -100,9 +107,14 @@ public interface FleetSupervisorAgent {
             
             %s
             """,
-                carInfo.year, carInfo.make, carInfo.model, carNumber, carInfo.condition,
-                feedbackAnalysisResults.cleaningAnalysis(),
-                feedbackAnalysisResults.maintenanceAnalysis(),
-                dispositionRequired ? dispositionMessage : noDispositionMessage);
+            carYear,
+            carMake,
+            carModel,
+            carNumber,
+            carCondition,
+            feedbackAnalysisResults.cleaningAnalysis(),
+            feedbackAnalysisResults.maintenanceAnalysis(),
+            dispositionRequired ? dispositionMessage : noDispositionMessage
+        );
     }
 }

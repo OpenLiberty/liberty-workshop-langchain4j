@@ -1,12 +1,23 @@
 package com.carmanagement.agentic.agents;
 
-import dev.langchain4j.agentic.Agent;
+import dev.langchain4j.cdi.spi.RegisterSimpleAgent;
 import dev.langchain4j.service.SystemMessage;
 import dev.langchain4j.service.UserMessage;
+import dev.langchain4j.service.V;
+
+import jakarta.enterprise.context.ApplicationScoped;
 
 /**
  * Agent that determines how to dispose of a car based on value, condition, and damage.
  */
+@RegisterSimpleAgent(
+    name = "disposition-agent",
+    description = "Car disposition specialist. Determines how to dispose of a car based on value and condition.",
+    chatModelName = "chat-model",
+    chatMemoryName = "disposition-agent-memory",
+    outputKey = "dispositionAction",
+    scope = ApplicationScoped.class
+)
 public interface DispositionAgent {
 
     @SystemMessage("""
@@ -27,26 +38,26 @@ public interface DispositionAgent {
         - If car is valuable and damage is minor: KEEP
         
         Provide your recommendation with a clear explanation of the reasoning.
-        """)
+    """)
     @UserMessage("""
         Determine the disposition for this vehicle:
-        - Make: {carMake}
-        - Model: {carModel}
-        - Year: {carYear}
-        - Car Number: {carNumber}
-        - Current Condition: {carCondition}
-        - Estimated Value: {carValue}
-        - Damage/Feedback: {feedback}
-
+        - Make: {{carMake}}
+        - Model: {{carModel}}
+        - Year: {{carYear}}
+        - Car Number: {{carNumber}}
+        - Current Condition: {{carCondition}}
+        - Estimated Value: {{carValue}}
+        - Damage/Feedback: {{feedback}}
+        
         Provide your disposition recommendation (SCRAP/SELL/DONATE/KEEP) and explanation.
-        """)
-    @Agent(outputKey = "dispositionAction", description = "Car disposition specialist. Determines how to dispose of a car based on value and condition.")
+    """)
     String processDisposition(
-            String carMake,
-            String carModel,
-            Integer carYear,
-            Integer carNumber,
-            String carCondition,
-            String carValue,
-            String feedback);
+        @V("carMake") String carMake,
+        @V("carModel") String carModel,
+        @V("carYear") Integer carYear,
+        @V("carNumber") Integer carNumber,
+        @V("carCondition") String carCondition,
+        @V("carValue") String carValue,
+        @V("feedback") String feedback
+    );
 }
