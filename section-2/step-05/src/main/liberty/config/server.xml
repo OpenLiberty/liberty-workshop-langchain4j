@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<server description="Liberty Workshop LangChain4J Server">
+
+    <!-- Enable features -->
+    <featureManager>
+    	<platform>jakartaee-10.0</platform>
+        <platform>microprofile-7.1</platform>
+        <feature>cdi</feature>
+        <feature>concurrent</feature>
+        <feature>enterpriseBeansLite</feature>
+        <feature>jsonb</feature>
+        <feature>jsonp</feature>
+        <feature>persistence</feature>
+        <feature>restfulWS</feature>
+        <feature>servlet</feature>
+        <feature>mpConfig</feature>
+    </featureManager>
+
+    <!-- HTTP endpoint configuration -->
+    <httpEndpoint
+        id="defaultHttpEndpoint"
+        httpPort="9080"
+        httpsPort="9443"
+        host="*"
+    />
+
+    <!-- Application configuration -->
+    <applicationManager autoExpand="true"/>
+    <webApplication
+        id="langchain4j-workshop"
+        location="langchain4j-workshop.war"
+        contextRoot="/">
+    </webApplication>
+
+    <!-- Logging configuration -->
+    <logging
+        traceSpecification="*=info:dev.langchain4j.*=all:com.carmanagement.*=all"
+        maxFileSize="20"
+        maxFiles="10"
+        consoleLogLevel="INFO"
+    />
+
+    <!-- Basic user registry -->
+    <basicRegistry id="basic" realm="BasicRealm">
+        <user name="admin" password="admin" />
+        <user name="user" password="user" />
+    </basicRegistry>
+
+    <library id="postgresql-library">
+        <fileset dir="${shared.resource.dir}" includes="*.jar" />
+    </library>
+
+    <dataSource id="default" jndiName="jdbc/postgresql">
+        <jdbcDriver libraryRef="postgresql-library" />
+        <properties.postgresql
+            serverName="${vector.store.hostname}"
+            portNumber="${vector.store.port}"
+            databaseName="${vector.store.database}"
+            user="${vector.store.username}"
+            password="${vector.store.password}"
+        />
+    </dataSource>
+</server>
