@@ -1,13 +1,24 @@
 package com.carmanagement.agentic.agents;
 
-import dev.langchain4j.agentic.Agent;
+import dev.langchain4j.cdi.spi.RegisterSimpleAgent;
 import dev.langchain4j.service.SystemMessage;
 import dev.langchain4j.service.UserMessage;
+import dev.langchain4j.service.V;
+
+import jakarta.enterprise.context.ApplicationScoped;
 
 /**
  * Agent that estimates the market value of a vehicle.
  * Used by the supervisor to make disposition decisions.
  */
+@RegisterSimpleAgent(
+    name = "pricing-agent",
+    description = "Pricing specialist that estimates vehicle market value based on make, model, year, and condition.",
+    chatModelName = "chat-model",
+    chatMemoryName = "pricing-agent-memory",
+    outputKey = "carValue",
+    scope = ApplicationScoped.class
+)
 public interface PricingAgent {
 
     @SystemMessage("""
@@ -43,18 +54,19 @@ public interface PricingAgent {
         Format your response as:
         Estimated Value: $XX,XXX
         Justification: [Your reasoning including vehicle age]
-        """)
+    """)
     @UserMessage("""
         Estimate the current market value of this vehicle:
-        - Make: {carMake}
-        - Model: {carModel}
-        - Year: {carYear}
-        - Condition: {carCondition}
-        """)
-    @Agent(
-        outputKey = "carValue",
-        description = "Pricing specialist that estimates vehicle market value based on make, model, year, and condition"
-    )
-    String estimateValue(String carMake, String carModel, Integer carYear, String carCondition);
+        - Make: {{carMake}}
+        - Model: {{carModel}}
+        - Year: {{carYear}}
+        - Condition: {{carCondition}} {{feedback}}
+    """)
+    String estimateValue(
+        @V("carMake") String carMake,
+        @V("carModel") String carModel,
+        @V("carYear") Integer carYear,
+        @V("carCondition") String carCondition,
+        @V("feedback") String feedback
+    );
 }
-

@@ -1,16 +1,23 @@
 package com.carmanagement.agentic.agents;
 
-import com.carmanagement.model.CarConditions;
-import com.carmanagement.model.CarInfo;
-import com.carmanagement.model.FeedbackAnalysisResults;
-import dev.langchain4j.agentic.Agent;
+import dev.langchain4j.cdi.spi.RegisterSimpleAgent;
 import dev.langchain4j.service.SystemMessage;
 import dev.langchain4j.service.UserMessage;
+import dev.langchain4j.service.V;
+
+import jakarta.enterprise.context.ApplicationScoped;
 
 /**
- * Agent that analyzes feedback to determine the final car condition and assignment.
- * This is the final decision-maker that interprets all previous agent outputs.
+ * Agent that analyzes feedback to update the car condition.
  */
+@RegisterSimpleAgent(
+    name = "car-condition-feedback-agent",
+    description = "Final car condition analyzer. Determines the car's condition and assignment based on all feedback.",
+    chatModelName = "chat-model",
+    chatMemoryName = "car-condition-feedback-agent-memory",
+    outputKey = "carConditions",
+    scope = ApplicationScoped.class
+)
 public interface CarConditionFeedbackAgent {
 
     @SystemMessage("""
@@ -30,22 +37,26 @@ public interface CarConditionFeedbackAgent {
         - Else → NONE
         - IMPORTANT: If DispositionAgent decided KEEP, do NOT assign DISPOSITION - check maintenance/cleaning instead
         - generalCondition: Summarize the action and reason
-        """)
+    """)
     @UserMessage("""
-            Car: {carInfo.year} {carInfo.make} {carInfo.model} (#{carNumber})
-            
-            Supervisor Decision: {supervisorDecision}
-            
-            Feedback Analysis Results:
-            - Disposition: {feedbackAnalysisResults.dispositionAnalysis}
-            - Maintenance: {feedbackAnalysisResults.maintenanceAnalysis}
-            - Cleaning: {feedbackAnalysisResults.cleaningAnalysis}
-            """)
-    @Agent(description = "Final car condition analyzer. Determines the car's condition and assignment based on all feedback.",
-            outputKey = "carConditions")
-    CarConditions analyzeForCondition(
-            CarInfo carInfo,
-            Integer carNumber,
-            FeedbackAnalysisResults feedbackAnalysisResults,
-            String supervisorDecision);
+        Car: {{carYear}} {{carMake}} {{carModel}} (#{{carNumber}})
+        
+        Supervisor Decision: {{supervisorDecision}}
+        
+        - Disposition: {{dispositionAnalysis}}
+        - Maintenance: {{maintenanceAnalysis}}
+        - Cleaning: {{cleaningAnalysis}}
+
+    """)
+    String analyzeForCondition(
+        @V("carMake") String carMake,
+        @V("carModel") String carModel,
+        @V("carYear") Integer carYear,
+        @V("carNumber") Integer carNumber,
+        @V("carCondition") String carCondition,
+        @V("cleaningAnalysis") String cleaningAnalysis,
+        @V("maintenanceAnalysis") String maintenanceAnalysis,
+        @V("dispositionAnalysis") String dispositionAnalysis,
+        @V("supervisorDecision") String supervisorDecision
+    );
 }
