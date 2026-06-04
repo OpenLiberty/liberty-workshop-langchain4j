@@ -12,12 +12,15 @@ let lastUpdatedCarId = null; // Track the last updated car for highlighting
 document.addEventListener('DOMContentLoaded', function() {
     // Load all cars and populate the tables
     loadAllCars();
-
+    
     // Add event listeners for form submissions
     setupEventListeners();
 
     // Set up sorting functionality
     setupSorting();
+    
+    // Start polling for approvals (always active now with modal)
+    startApprovalPolling();
 });
 
 // Function to load all cars from the API
@@ -32,10 +35,10 @@ function loadAllCars() {
         .then(cars => {
             // Store cars data globally for sorting
             carsData = cars;
-
+            
             // Sort the data if a sort is active
             sortCars();
-
+            
             // Process the cars data
             populateFleetStatusTable(carsData);
         })
@@ -48,11 +51,11 @@ function loadAllCars() {
 // Function to set up sorting functionality
 function setupSorting() {
     const sortableHeaders = document.querySelectorAll('.sortable');
-
+    
     sortableHeaders.forEach(header => {
         header.addEventListener('click', function() {
             const column = this.getAttribute('data-sort');
-
+            
             // If clicking the same column, toggle direction
             if (column === currentSortColumn) {
                 currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
@@ -61,10 +64,10 @@ function setupSorting() {
                 currentSortColumn = column;
                 currentSortDirection = 'asc';
             }
-
+            
             // Update header classes for visual indication
             updateSortHeaders();
-
+            
             // Sort and redisplay data
             sortCars();
             populateFleetStatusTable(carsData);
@@ -78,7 +81,7 @@ function updateSortHeaders() {
     document.querySelectorAll('.sortable').forEach(header => {
         header.classList.remove('sort-asc', 'sort-desc');
     });
-
+    
     // Add class to current sort column
     const currentHeader = document.querySelector(`.sortable[data-sort="${currentSortColumn}"]`);
     if (currentHeader) {
@@ -90,7 +93,7 @@ function updateSortHeaders() {
 function sortCars() {
     carsData.sort((a, b) => {
         let valueA, valueB;
-
+        
         // Handle special case for status which needs to be displayed text
         if (currentSortColumn === 'status') {
             valueA = getStatusDisplay(a.status);
@@ -99,13 +102,13 @@ function sortCars() {
             valueA = a[currentSortColumn];
             valueB = b[currentSortColumn];
         }
-
+        
         // Handle numeric values
         if (currentSortColumn === 'id' || currentSortColumn === 'year') {
             valueA = Number(valueA) || 0;
             valueB = Number(valueB) || 0;
         }
-
+        
         // Compare values based on direction
         if (valueA < valueB) {
             return currentSortDirection === 'asc' ? -1 : 1;
@@ -122,24 +125,24 @@ function filterCars() {
     if (!currentFilterText) {
         return carsData; // Return all cars if no filter text
     }
-
+    
     return carsData.filter(car => {
         // Convert filter text to lowercase for case-insensitive comparison
         const filterText = currentFilterText.toLowerCase();
-
+        
         // If filtering on a specific field
         if (currentFilterField !== 'all') {
             let fieldValue = car[currentFilterField];
-
+            
             // Handle special case for status which needs to be displayed text
             if (currentFilterField === 'status') {
                 fieldValue = getStatusDisplay(fieldValue);
             }
-
+            
             // Convert to string and check if it contains the filter text
             return String(fieldValue).toLowerCase().includes(filterText);
         }
-
+        
         // If filtering across all fields
         return (
             String(car.id).toLowerCase().includes(filterText) ||
@@ -156,18 +159,18 @@ function filterCars() {
 function populateFleetStatusTable(cars) {
     const tableBody = document.getElementById('fleet-status-table-body');
     tableBody.innerHTML = ''; // Clear existing rows
-
+    
     // Apply filter if there's filter text
     const filteredCars = currentFilterText ? filterCars() : cars;
-
+    
     if (filteredCars.length === 0) {
         tableBody.innerHTML = '<tr><td colspan="7">No cars match your filter criteria</td></tr>';
         return;
     }
-
+    
     filteredCars.forEach(car => {
         const row = document.createElement('tr');
-
+        
         // Highlight the row if it was just updated
         if (car.id === lastUpdatedCarId) {
             row.classList.add('highlight-row');
@@ -176,11 +179,10 @@ function populateFleetStatusTable(cars) {
                 lastUpdatedCarId = null;
             }, 3000);
         }
-
+        
         // Get status pill class based on car status
         const statusPillClass = getStatusPillClass(car.status);
-
-        // Build action cell based on status
+        
         let actionCell = '';
         if (car.status === 'RENTED' || car.status === 'AT_CLEANING' || car.status === 'IN_MAINTENANCE') {
             actionCell = `
@@ -203,12 +205,12 @@ function populateFleetStatusTable(cars) {
             <td><span class="status-pill ${statusPillClass}">${getStatusDisplay(car.status)}</span></td>
             ${actionCell}
         `;
-
+        
         tableBody.appendChild(row);
     });
 }
 
-// Function to process feedback and return a car
+// Function to process feedback and return a car from any status
 function processFeedback(event, carId, status) {
     event.preventDefault();
     const feedback = document.getElementById(`feedback-${carId}`).value;
@@ -305,7 +307,7 @@ function setupEventListeners() {
     if (refreshButton) {
         refreshButton.addEventListener('click', loadAllCars);
     }
-
+    
     // Add filter input event listener
     const filterInput = document.getElementById('fleet-filter');
     if (filterInput) {
@@ -314,7 +316,7 @@ function setupEventListeners() {
             populateFleetStatusTable(carsData);
         });
     }
-
+    
     // Add filter field select event listener
     const filterField = document.getElementById('filter-field');
     if (filterField) {
@@ -323,22 +325,22 @@ function setupEventListeners() {
             populateFleetStatusTable(carsData);
         });
     }
-
+    
     // Add clear filter button event listener
     const clearFilterButton = document.getElementById('clear-filter');
     if (clearFilterButton) {
         clearFilterButton.addEventListener('click', function() {
             const filterInput = document.getElementById('fleet-filter');
             const filterField = document.getElementById('filter-field');
-
+            
             // Reset filter values
             currentFilterText = '';
             currentFilterField = 'all';
-
+            
             // Reset UI elements
             if (filterInput) filterInput.value = '';
             if (filterField) filterField.value = 'all';
-
+            
             // Refresh table
             populateFleetStatusTable(carsData);
         });
@@ -351,7 +353,7 @@ function displayError(message) {
     if (errorDiv) {
         errorDiv.textContent = message;
         errorDiv.style.display = 'block';
-
+        
         // Hide after 5 seconds
         setTimeout(() => {
             errorDiv.style.display = 'none';
@@ -367,10 +369,248 @@ function showNotification(message) {
     if (notificationDiv) {
         notificationDiv.textContent = message;
         notificationDiv.style.display = 'block';
-
+        
         // Hide after 3 seconds
         setTimeout(() => {
             notificationDiv.style.display = 'none';
         }, 3000);
+    }
+}
+
+
+
+// Poll for pending approvals every 2 seconds
+let approvalPollingInterval = null;
+let lastApprovalCount = 0;
+let isModalOpen = false;
+
+// ============================================================================
+// HUMAN-IN-THE-LOOP APPROVAL FUNCTIONS
+// ============================================================================
+
+// Load and display pending approvals in modal
+async function loadPendingApprovals() {
+    try {
+        const response = await fetch('/api/approvals/pending');
+        const proposals = await response.json();
+        
+        const floatBtn = document.getElementById('approval-notification-btn');
+        const countBadge = floatBtn.querySelector('.approval-count-badge');
+        
+        // Show browser notification if new approvals arrived
+        if (proposals.length > lastApprovalCount && lastApprovalCount >= 0) {
+            if (proposals.length > 0) {
+                showBrowserNotification('🚨 Approval Required',
+                    `${proposals.length} vehicle disposition${proposals.length > 1 ? 's' : ''} awaiting your approval`);
+            }
+        }
+        lastApprovalCount = proposals.length;
+        
+        // Update floating button
+        if (proposals.length > 0) {
+            floatBtn.style.display = 'flex';
+            countBadge.textContent = proposals.length;
+        } else {
+            floatBtn.style.display = 'none';
+            // Close modal if no more approvals
+            if (isModalOpen) {
+                closeApprovalModal();
+            }
+        }
+        
+        // Only update modal content if modal is NOT open (prevents flashing)
+        if (!isModalOpen) {
+            const modalBody = document.getElementById('approval-modal-body');
+            if (!proposals || proposals.length === 0) {
+                modalBody.innerHTML = '<p style="text-align: center; padding: 40px; color: #666;">No pending approvals at this time.</p>';
+            } else {
+                modalBody.innerHTML = '';
+                proposals.forEach(proposal => {
+                    const card = createApprovalCard(proposal);
+                    modalBody.appendChild(card);
+                });
+            }
+        }
+    } catch (error) {
+        console.error('Error loading pending approvals:', error);
+    }
+}
+
+// Open approval modal
+function openApprovalModal() {
+    isModalOpen = true;
+    const modal = document.getElementById('approval-modal');
+    modal.style.display = 'flex';
+    
+    // Load content when opening
+    loadModalContent();
+}
+
+// Close approval modal
+function closeApprovalModal() {
+    isModalOpen = false;
+    document.getElementById('approval-modal').style.display = 'none';
+}
+
+// Load modal content (called when opening modal)
+async function loadModalContent() {
+    try {
+        const response = await fetch('/api/approvals/pending');
+        const proposals = await response.json();
+        const modalBody = document.getElementById('approval-modal-body');
+        
+        if (!proposals || proposals.length === 0) {
+            modalBody.innerHTML = '<p style="text-align: center; padding: 40px; color: #666;">No pending approvals at this time.</p>';
+        } else {
+            modalBody.innerHTML = '';
+            proposals.forEach(proposal => {
+                const card = createApprovalCard(proposal);
+                modalBody.appendChild(card);
+            });
+        }
+    } catch (error) {
+        console.error('Error loading modal content:', error);
+    }
+}
+
+// Show browser notification (requires permission)
+function showBrowserNotification(title, body) {
+    if (!("Notification" in window)) {
+        return;
+    }
+    
+    if (Notification.permission === "granted") {
+        new Notification(title, { body, icon: '/favicon.ico' });
+    } else if (Notification.permission !== "denied") {
+        Notification.requestPermission().then(permission => {
+            if (permission === "granted") {
+                new Notification(title, { body, icon: '/favicon.ico' });
+            }
+        });
+    }
+}
+
+// Create an approval card UI element for a proposal
+function createApprovalCard(proposal) {
+    const card = document.createElement('div');
+    card.className = 'approval-card';
+    card.id = `approval-${proposal.id}`;
+    
+    card.innerHTML = `
+        <div class="approval-card-header">
+            <div class="vehicle-title">
+                <span class="vehicle-icon">🚗</span>
+                <h3>${proposal.carYear} ${proposal.carMake} ${proposal.carModel}</h3>
+            </div>
+            <div class="vehicle-value">${proposal.carValue}</div>
+        </div>
+        
+        <div class="approval-card-body">
+            <div class="info-row">
+                <span class="info-label">Car #${proposal.carNumber}</span>
+                <span class="info-label">Condition: ${proposal.carCondition}</span>
+            </div>
+            
+            <div class="damage-section">
+                <div class="section-title">Damage Report</div>
+                <div class="damage-text">${proposal.rentalFeedback || 'No feedback provided'}</div>
+            </div>
+            
+            <div class="proposal-section">
+                <div class="section-title">AI Recommendation</div>
+                <div class="proposal-action">
+                    <span class="action-badge">${proposal.proposedDisposition}</span>
+                    <span class="action-reason">${proposal.dispositionReason}</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="approval-card-footer">
+            ${getApprovalButtons(proposal)}
+        </div>
+    `;
+    
+    return card;
+}
+
+// Get approval buttons - simplified to always show Keep vs Dispose
+function getApprovalButtons(proposal) {
+    return `
+        <button class="btn-approve" onclick="handleProposalDecision(${proposal.id}, 'KEEP_CAR')">
+            ✅ Keep & Repair
+        </button>
+        <button class="btn-reject" onclick="handleProposalDecision(${proposal.id}, 'DISPOSE_CAR')">
+            🗑️ Dispose
+        </button>
+    `;
+}
+
+// Handle approval/rejection decision for a proposal
+async function handleProposalDecision(proposalId, decision) {
+    try {
+        const reasonInput = document.getElementById(`reason-${proposalId}`);
+        const reason = reasonInput ? reasonInput.value.trim() : '';
+        
+        const response = await fetch(`/api/approvals/${proposalId}/decide`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                decision: decision, // KEEP_CAR or DISPOSE_CAR
+                reason: reason || `${decision === 'KEEP_CAR' ? 'Keep and repair' : 'Dispose'} decision by human reviewer`,
+                approvedBy: 'Workshop User'
+            })
+        });
+        
+        if (response.ok) {
+            const actionText = decision === 'KEEP_CAR' ? 'KEEP & REPAIR' : 'DISPOSE';
+            showNotification(`✅ Decision: ${actionText} - Workflow will complete shortly`, 'success');
+            
+            // Remove the approval card with animation
+            const card = document.getElementById(`approval-${proposalId}`);
+            if (card) {
+                card.style.opacity = '0';
+                card.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    card.remove();
+                    // Reload approvals to update the display
+                    loadPendingApprovals();
+                    // Don't reload cars immediately - let the next automatic refresh handle it
+                    // This prevents the UI from flickering between states
+                }, 300);
+            }
+        } else {
+            const error = await response.json();
+            showNotification(`❌ Error: ${error.error || 'Failed to record decision'}`, 'error');
+        }
+    } catch (error) {
+        console.error('Error handling proposal decision:', error);
+        showNotification('❌ Error recording decision', 'error');
+    }
+}
+
+// Start polling for pending approvals
+function startApprovalPolling() {
+    // Request notification permission on first load
+    if ("Notification" in window && Notification.permission === "default") {
+        Notification.requestPermission();
+    }
+    
+    // Load immediately
+    loadPendingApprovals();
+    
+    // Then poll every 2 seconds
+    if (approvalPollingInterval) {
+        clearInterval(approvalPollingInterval);
+    }
+    approvalPollingInterval = setInterval(loadPendingApprovals, 2000);
+}
+
+// Stop polling for pending approvals
+function stopApprovalPolling() {
+    if (approvalPollingInterval) {
+        clearInterval(approvalPollingInterval);
+        approvalPollingInterval = null;
     }
 }

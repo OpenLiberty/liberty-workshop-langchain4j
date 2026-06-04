@@ -60,4 +60,6 @@
             password="${vector.store.password}"
         />
     </dataSource>
+
+    <transaction totalTranLifetimeTimeout="360s"/>
 </server>

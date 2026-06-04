@@ -3,6 +3,7 @@ package com.carmanagement.agentic.workflows;
 import com.carmanagement.models.CarConditions;
 
 import dev.langchain4j.agentic.declarative.Output;
+import dev.langchain4j.agentic.observability.MonitoredAgent;
 import dev.langchain4j.cdi.spi.RegisterSequenceAgent;
 
 import java.util.List;
@@ -22,7 +23,7 @@ import org.slf4j.LoggerFactory;
     },
     outputKey = "carProcessingAgentResult"
 )
-public interface CarProcessingWorkflow {
+public interface CarProcessingWorkflow extends MonitoredAgent {
 
     /**
      * Processes a car return by first analyzing feedback, then using supervisor to coordinate actions.

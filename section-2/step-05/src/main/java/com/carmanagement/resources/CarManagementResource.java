@@ -7,6 +7,8 @@ import com.carmanagement.services.CarManagementService;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
@@ -50,5 +52,12 @@ public class CarManagementResource {
                 .entity("Error processing return: " + e.getMessage())
                 .build();
         }
+    }
+
+    @GET
+    @Path("/report")
+    @Produces(MediaType.TEXT_HTML)
+    public Response report() {
+        return Response.ok(carManagementService.report()).build();
     }
 }

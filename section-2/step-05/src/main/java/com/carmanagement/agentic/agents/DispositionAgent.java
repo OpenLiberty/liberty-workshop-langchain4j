@@ -38,6 +38,8 @@ public interface DispositionAgent {
         - If car is valuable and damage is minor: KEEP
         
         Provide your recommendation with a clear explanation of the reasoning.
+
+        CRITICAL: Never override a decision that has been made by a human.
     """)
     @UserMessage("""
         Determine the disposition for this vehicle:

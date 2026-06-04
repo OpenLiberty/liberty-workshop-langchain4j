@@ -17,6 +17,10 @@
     <button id="refresh-button" style="margin-bottom: 20px; padding: 10px; background-color: #2196F3; color: white; border: none; border-radius: 5px; cursor: pointer;">
         Refresh Data
     </button>
+    <button id="report-button" style="margin-bottom: 20px; margin-left: 10px; padding: 10px; background-color: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer;"
+            onclick="window.open('/api/car-management/report', '_blank')">
+        Generate Report
+    </button>
     
     <!-- Section 1: Fleet Status -->
     <div id="fleet-status-section" class="section">
@@ -57,7 +61,27 @@
             </tbody>
         </table>
     </div>
-
+    
+    <!-- Floating Approval Notification Button -->
+    <button id="approval-notification-btn" class="approval-float-btn" style="display: none;" onclick="openApprovalModal()">
+        <span class="approval-icon">⏸️</span>
+        <span class="approval-count-badge">0</span>
+        <span class="approval-text">Approval Needed</span>
+    </button>
+    
+    <!-- Approval Modal Overlay -->
+    <div id="approval-modal" class="approval-modal" style="display: none;">
+        <div class="approval-modal-content">
+            <div class="approval-modal-header">
+                <h2>🚨 Human Approval Required</h2>
+                <button class="approval-modal-close" onclick="closeApprovalModal()">&times;</button>
+            </div>
+            <div class="approval-modal-body" id="approval-modal-body">
+                <!-- Approval cards will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+    
     <script src="/js/app.js"></script>
 </body>
 </html>
