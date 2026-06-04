@@ -46,6 +46,8 @@ public interface PricingAgent {
         - Good/Recently serviced: No adjustment
         - Fair/Minor issues: -10% from depreciated value
         - Poor/Needs work: -20% from depreciated value
+
+        Consider both the previous condition and the feedback, but place more emphasis on the feedback.
         
         Provide:
         1. Estimated market value (single dollar amount with comma separator)
@@ -60,7 +62,8 @@ public interface PricingAgent {
         - Make: {{carMake}}
         - Model: {{carModel}}
         - Year: {{carYear}}
-        - Condition: {{carCondition}} {{feedback}}
+        - Previous Condition: {{carCondition}}
+        - Feedback: {{feedback}}
     """)
     String estimateValue(
         @V("carMake") String carMake,

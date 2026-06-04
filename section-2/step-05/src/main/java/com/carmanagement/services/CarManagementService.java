@@ -1,6 +1,6 @@
 package com.carmanagement.services;
 
-import org.slf4j.Logger;
+import static dev.langchain4j.agentic.observability.HtmlReportGenerator.generateReport;
 
 import com.carmanagement.agentic.workflows.CarProcessingWorkflow;
 import com.carmanagement.managers.CarInfoManager;
@@ -14,6 +14,8 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 
 import java.util.List;
+
+import org.slf4j.Logger;
 
 /**
  * Service for managing car returns from various operations.
@@ -91,5 +93,9 @@ public class CarManagementService {
             logger.error("Error procesing car return: {}", e.getMessage(), e);
             throw e;
         }
+    }
+
+    public String report() {
+        return generateReport(carProcessingWorkflow.agentMonitor());
     }
 }
