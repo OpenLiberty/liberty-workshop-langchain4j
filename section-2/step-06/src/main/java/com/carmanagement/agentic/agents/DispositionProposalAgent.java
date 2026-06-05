@@ -1,14 +1,25 @@
 package com.carmanagement.agentic.agents;
 
-import dev.langchain4j.agentic.Agent;
+import dev.langchain4j.cdi.spi.RegisterSimpleAgent;
 import dev.langchain4j.service.SystemMessage;
 import dev.langchain4j.service.UserMessage;
+import dev.langchain4j.service.V;
+
+import jakarta.enterprise.context.ApplicationScoped;
 
 /**
  * Agent that creates disposition proposals for vehicles requiring disposition.
  * This agent analyzes the vehicle and creates a proposal that will be reviewed
  * by the HumanApprovalAgent if the vehicle value exceeds the threshold.
  */
+@RegisterSimpleAgent(
+    name = "disposition-proposal-agent",
+    description = "Creates disposition proposals for vehicles requiring disposition.",
+    chatModelName = "chat-model",
+    chatMemoryName = "disposition-proposal-agent-memory",
+    outputKey = "dispositionProposal",
+    scope = ApplicationScoped.class
+)
 public interface DispositionProposalAgent {
 
     @SystemMessage("""
@@ -37,28 +48,26 @@ public interface DispositionProposalAgent {
         Reasoning: [Your detailed explanation]
         
         CRITICAL: Use double underscores around the action (e.g., __KEEP__ not KEEP)
-        """)
+    """)
     @UserMessage("""
         Create a disposition proposal for this vehicle:
-        - Make: {carMake}
-        - Model: {carModel}
-        - Year: {carYear}
-        - Car Number: {carNumber}
-        - Current Condition: {carCondition}
-        - Estimated Value: {carValue}
-        - Damage/Feedback: {feedback}
+        - Make: {{carMake}}
+        - Model: {{carModel}}
+        - Year: {{carYear}}
+        - Car Number: {{carNumber}}
+        - Current Condition: {{carCondition}}
+        - Estimated Value: {{carValue}}
+        - Damage/Feedback: {{feedback}}
 
         Provide your disposition proposal with clear reasoning.
-        """)
-    @Agent(outputKey = "dispositionProposal", description = "Creates disposition proposals for vehicles requiring disposition")
+    """)
     String createDispositionProposal(
-            String carMake,
-            String carModel,
-            Integer carYear,
-            Integer carNumber,
-            String carCondition,
-            String carValue,
-            String feedback);
+        @V("carMake") String carMake,
+        @V("carModel") String carModel,
+        @V("carYear") Integer carYear,
+        @V("carNumber") Integer carNumber,
+        @V("carCondition") String carCondition,
+        @V("carValue") String carValue,
+        @V("feedback") String feedback
+    );
 }
-
-
