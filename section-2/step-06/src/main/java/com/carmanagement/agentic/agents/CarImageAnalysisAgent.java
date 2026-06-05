@@ -1,15 +1,26 @@
 package com.carmanagement.agentic.agents;
 
-import dev.langchain4j.agentic.Agent;
+import dev.langchain4j.cdi.spi.RegisterSimpleAgent;
 import dev.langchain4j.data.message.ImageContent;
 import dev.langchain4j.service.SystemMessage;
 import dev.langchain4j.service.UserMessage;
 import dev.langchain4j.service.V;
 
+import jakarta.enterprise.context.ApplicationScoped;
+
 /**
  * Agent that analyzes a car image and enriches the rental feedback with visual observations.
  * If no image is provided, the rental feedback is returned unchanged.
  */
+@RegisterSimpleAgent(
+    name = "car-image-analysis-agent",
+    description = "Car image analyzer. Enriches rental feedback with visual observations from a car image.",
+    chatModelName = "image-analysis-model",
+    // chatModelName = "chat-model",
+    outputKey = "feedback",
+    optional = true,
+    scope = ApplicationScoped.class
+)
 public interface CarImageAnalysisAgent {
 
     @SystemMessage("""
@@ -24,11 +35,12 @@ public interface CarImageAnalysisAgent {
         simply return the rental feedback exactly as it is, without any modification.
         Your response must always include the original rental feedback text followed by your observations if any.
         In any cases the returned response MUST be a single sentence.
-        """)
+    """)
     @UserMessage("""
-        Feedback: {feedback}
-        """)
-    @Agent(description = "Car image analyzer. Enriches rental feedback with visual observations from a car image.",
-            outputKey = "feedback", optional = true)
-    String analyzeCarImage(String feedback, @UserMessage @V("carImage") ImageContent carImage);
+        Feedback: {{feedback}}
+    """)
+    String analyzeCarImage(
+        @V("feedback") String feedback,
+        @V("carImage") @UserMessage ImageContent carImage
+    );
 }

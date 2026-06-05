@@ -1,14 +1,26 @@
 package com.carmanagement.agentic.agents;
 
-import dev.langchain4j.agentic.Agent;
-import dev.langchain4j.agentic.declarative.Output;
+import dev.langchain4j.cdi.spi.RegisterSimpleAgent;
 import dev.langchain4j.service.SystemMessage;
 import dev.langchain4j.service.UserMessage;
+import dev.langchain4j.service.V;
+
+import jakarta.enterprise.context.ApplicationScoped;
+
+import java.util.Date;
 
 /**
  * Agent that estimates the market value of a vehicle.
  * Used by the supervisor to make disposition decisions.
  */
+@RegisterSimpleAgent(
+    name = "pricing-agent",
+    description = "Pricing specialist that estimates vehicle market value based on make, model, year, and condition.",
+    chatModelName = "chat-model",
+    chatMemoryName = "pricing-agent-memory",
+    outputKey = "carValue",
+    scope = ApplicationScoped.class
+)
 public interface PricingAgent {
 
     @SystemMessage("""
@@ -36,6 +48,8 @@ public interface PricingAgent {
         - Good/Recently serviced: No adjustment
         - Fair/Minor issues: -10% from depreciated value
         - Poor/Needs work: -20% from depreciated value
+
+        Consider both the previous condition and the feedback, but place more emphasis on the feedback.
         
         Provide:
         1. Estimated market value (single dollar amount with comma separator)
@@ -44,42 +58,20 @@ public interface PricingAgent {
         Format your response as:
         Estimated Value: $XX,XXX
         Justification: [Your reasoning including vehicle age]
-        """)
+    """)
     @UserMessage("""
         Estimate the current market value of this vehicle:
-        - Make: {carMake}
-        - Model: {carModel}
-        - Year: {carYear}
-        - Condition: {carCondition}
-        """)
-    @Agent(
-        outputKey = "carValue",
-        description = "Pricing specialist that estimates vehicle market value based on make, model, year, and condition"
-    )
-    String estimateValue(String carMake, String carModel, Integer carYear, String carCondition);
-    
-    @Output
-    static String output(String carValue) {
-        // Ensure the output is always a string, even if the LLM returns just a number
-        // This prevents type mismatch errors when passing to other agents
-        if (carValue == null) {
-            return "$0";
-        }
-        // If it's already formatted with $, return as-is
-        if (carValue.contains("$")) {
-            return carValue;
-        }
-        // If it's just a number, format it with $
-        try {
-            // Try to parse as number and format
-            String numStr = carValue.replaceAll("[^0-9]", "");
-            if (!numStr.isEmpty()) {
-                return "$" + numStr;
-            }
-        } catch (Exception e) {
-            // If parsing fails, just return the original
-        }
-        return carValue;
-    }
+        - Make: {{carMake}}
+        - Model: {{carModel}}
+        - Year: {{carYear}}
+        - Previous Condition: {{carCondition}}
+        - Feedback: {{feedback}}
+    """)
+    String estimateValue(
+        @V("carMake") String carMake,
+        @V("carModel") String carModel,
+        @V("carYear") Integer carYear,
+        @V("carCondition") String carCondition,
+        @V("feedback") String feedback
+    );
 }
-
