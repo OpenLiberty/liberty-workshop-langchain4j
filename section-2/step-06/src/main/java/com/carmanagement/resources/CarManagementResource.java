@@ -3,28 +3,24 @@ package com.carmanagement.resources;
 import com.carmanagement.services.CarManagementService;
 
 import dev.langchain4j.data.message.ImageContent;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.FormParam;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.EntityPart;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.Response.Status;
-import jakarta.ws.rs.FormParam;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.QueryParam;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Base64;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * REST resource for car management operations.

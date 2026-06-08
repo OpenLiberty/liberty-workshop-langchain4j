@@ -1,21 +1,17 @@
 package dev.langchain4j.workshop;
 
 import dev.langchain4j.guardrail.InputGuardrailException;
-
-import java.io.IOException;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-
 import jakarta.inject.Inject;
-import jakarta.websocket.OnClose;
 import jakarta.websocket.OnMessage;
 import jakarta.websocket.OnOpen;
 import jakarta.websocket.Session;
 import jakarta.websocket.server.ServerEndpoint;
 
+import java.io.IOException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 @ServerEndpoint("/customer-support-agent")
 public class CustomerSupportAgentWebSocket {

@@ -7,8 +7,6 @@ import dev.langchain4j.service.V;
 
 import jakarta.enterprise.context.ApplicationScoped;
 
-import java.util.Date;
-
 /**
  * Agent that estimates the market value of a vehicle.
  * Used by the supervisor to make disposition decisions.

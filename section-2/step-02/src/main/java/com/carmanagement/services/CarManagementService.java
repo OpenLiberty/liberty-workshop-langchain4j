@@ -2,7 +2,6 @@ package com.carmanagement.services;
 
 import org.slf4j.Logger;
 
-import com.carmanagement.agentic.agents.CleaningAgent;
 import com.carmanagement.agentic.workflows.CarProcessingWorkflow;
 import com.carmanagement.managers.CarInfoManager;
 import com.carmanagement.models.CarConditions;

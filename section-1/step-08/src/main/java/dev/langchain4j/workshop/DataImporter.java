@@ -33,7 +33,6 @@ public class DataImporter {
         try ( Connection connection = dataSource.getConnection()
             ; InputStream is = getClass().getClassLoader().getResourceAsStream("import.sql")
             ) {
-            InputStreamReader isr = new InputStreamReader(is);
             ScriptRunner scriptRunner = new ScriptRunner(connection);
             scriptRunner.setSendFullScript(false);
             scriptRunner.setStopOnError(true);

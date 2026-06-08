@@ -1,14 +1,12 @@
 package dev.langchain4j.workshop;
 
-import dev.langchain4j.workshop.Exceptions.*;
-
+import dev.langchain4j.workshop.Exceptions.BookingNotFoundException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 
-import javax.sql.DataSource;
 import java.util.List;
 
 import org.slf4j.Logger;
