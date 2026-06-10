@@ -5,5 +5,3 @@
        version="4.0"
        bean-discovery-mode="all">
 </beans>
-
-<!-- Made with Bob -->

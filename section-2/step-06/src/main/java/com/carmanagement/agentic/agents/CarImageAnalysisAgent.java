@@ -15,8 +15,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 @RegisterSimpleAgent(
     name = "car-image-analysis-agent",
     description = "Car image analyzer. Enriches rental feedback with visual observations from a car image.",
-    chatModelName = "image-analysis-model",
-    // chatModelName = "chat-model",
+    chatModelName = "chat-model",
     outputKey = "feedback",
     optional = true,
     scope = ApplicationScoped.class
