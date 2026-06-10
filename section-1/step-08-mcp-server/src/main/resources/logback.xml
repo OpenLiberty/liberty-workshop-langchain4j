@@ -16,5 +16,3 @@
     <logger name="com.ibm.mcp.demo" level="DEBUG" />
     <logger name="io.openliberty.mcp" level="INFO" />
 </configuration>
-
-<!-- Made with Bob -->

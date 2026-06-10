@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<server description="Liberty Workshop A2A Pricing Agent Server">
+
+    <!-- Enable features -->
+    <featureManager>
+        <platform>microprofile-7.1</platform>
+        <feature>webProfile-11.0</feature>
+        <feature>mpConfig</feature>
+    </featureManager>
+
+    <!-- HTTP endpoint configuration -->
+    <httpEndpoint
+        id="defaultHttpEndpoint"
+        httpPort="8888"
+        host="*"
+    />
+
+    <!-- Application configuration -->
+    <webApplication
+        id="langchain4j-workshop"
+        location="langchain4j-workshop.war"
+        contextRoot="/">
+    </webApplication>
+
+    <!-- Logging configuration -->
+    <logging
+        traceSpecification="*=info:dev.langchain4j.*=all:com.carmanagement.*=all:a2a.server.*=all"
+        maxFileSize="20"
+        maxFiles="10"
+        consoleLogLevel="INFO"
+    />
+
+    <!-- Basic user registry -->
+    <basicRegistry id="basic" realm="BasicRealm">
+        <user name="admin" password="admin" />
+        <user name="user" password="user" />
+    </basicRegistry>
+</server>

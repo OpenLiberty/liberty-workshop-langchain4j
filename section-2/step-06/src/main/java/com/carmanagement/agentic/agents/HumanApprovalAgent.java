@@ -5,10 +5,7 @@ import com.carmanagement.services.ApprovalService;
 
 import dev.langchain4j.agentic.scope.AgenticScope;
 import dev.langchain4j.cdi.spi.RegisterHumanInTheLoopAgent;
-
-import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.spi.CDI;
-import jakarta.inject.Named;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
