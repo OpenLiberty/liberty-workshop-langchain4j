@@ -1,7 +1,9 @@
 package dev.langchain4j.workshop;
 
-import io.openliberty.mcp.annotations.Tool;
-import io.openliberty.mcp.annotations.ToolArg;
+// import io.openliberty.mcp.annotations.Tool;
+// import io.openliberty.mcp.annotations.ToolArg;
+import org.mcp_java.annotations.tools.Tool;
+import org.mcp_java.annotations.tools.ToolArg;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
