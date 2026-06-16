@@ -374,7 +374,7 @@ Now all we have to do is annotate our `dev.langchain4j.quarkus.workshop.Customer
 following annotations:
 
 ```java hl_lines="7-11 31-33 36-44" title="CustomerSupportAgent.java"
---8<-- "../../section-1/step-10/src/main/java/dev/langchain4j/quarkus/workshop/CustomerSupportAgent.java"
+--8<-- "../../section-1/step-10/src/main/java/dev/langchain4j/workshop/CustomerSupportAgent.java"
 ```
 
 That's all. To test the implemented fault tolerance, we'll need to 'break' our application.

@@ -357,7 +357,7 @@ The AI agent that estimates vehicle market values — the same logic that was lo
 In `src/main/java/com/demo`, create `PricingAgent.java`:
 
 ```java title="PricingAgent.java"
---8<-- "../../section-2/step-07/remote-a2a-agent/src/main/java/com/demo/PricingAgent.java"
+--8<-- "../../section-2/step-07/remote-a2a-agent/src/main/java/com/carmanagement/agentic/agents/PricingAgent.java"
 ```
 
 **Key Points:**
@@ -378,7 +378,7 @@ The **AgentCard** describes the agent's capabilities, skills, and interface.
 In `src/main/java/com/demo`, create `PricingAgentCard.java`:
 
 ```java title="PricingAgentCard.java"
---8<-- "../../section-2/step-07/remote-a2a-agent/src/main/java/com/demo/PricingAgentCard.java"
+--8<-- "../../section-2/step-07/remote-a2a-agent/src/main/java/com/carmanagement/agentic/cards/PricingAgentCard.java"
 ```
 
 **Let's break it down:**
@@ -441,7 +441,7 @@ The **AgentExecutor** handles incoming A2A requests and orchestrates the AI agen
 In `src/main/java/com/demo`, create `PricingAgentExecutor.java`:
 
 ```java title="PricingAgentExecutor.java"
---8<-- "../../section-2/step-07/remote-a2a-agent/src/main/java/com/demo/PricingAgentExecutor.java"
+--8<-- "../../section-2/step-07/remote-a2a-agent/src/main/java/com/carmanagement/agentic/executors/PricingAgentExecutor.java"
 ```
 
 **Let's break it down:**

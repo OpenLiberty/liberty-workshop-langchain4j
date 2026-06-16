@@ -9,6 +9,7 @@ import dev.langchain4j.cdi.spi.RegisterSequenceAgent;
 /**
  * Workflow for processing car returns using a sequence of agents.
  */
+// --8<-- [start:sequence-agent]
 @RegisterSequenceAgent(
     name = "car-processing-workflow",
     subAgentNames = {
@@ -18,6 +19,7 @@ import dev.langchain4j.cdi.spi.RegisterSequenceAgent;
     },
     outputKey = "carProcessingAgentResult"
 )
+// --8<-- [end:sequence-agent]
 public interface CarProcessingWorkflow {
 
     /**

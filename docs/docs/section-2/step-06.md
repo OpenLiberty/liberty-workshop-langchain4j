@@ -150,7 +150,7 @@ fetch(`/car-management/return/${carId}`, {
 Update `src/main/java/com/carmanagement/resource/CarManagementResource.java` to accept the image as a `FileUpload` and convert it to `ImageContent`:
 
 ```java title="CarManagementResource.java hl_lines="37-61 114-127"
---8<-- "../../section-2/step-06/src/main/java/com/carmanagement/resource/CarManagementResource.java"
+--8<-- "../../section-2/step-06/src/main/java/com/carmanagement/resources/CarManagementResource.java"
 ```
 
 **Let's break it down:**
@@ -204,7 +204,7 @@ private ImageContent toImageContent(FileUpload fileUpload) {
 Add `ImageContent` as a parameter and forward it to the workflow:
 
 ```java title="CarManagementService.java  hl_lines="37-38"
---8<-- "../../section-2/step-06/src/main/java/com/carmanagement/service/CarManagementService.java"
+--8<-- "../../section-2/step-06/src/main/java/com/carmanagement/services/CarManagementService.java"
 ```
 
 The image is passed straight through to the workflow alongside the feedback string and the `carImage` parameter:
@@ -281,7 +281,7 @@ The agent's output key is `rentalFeedback`, which means its result **replaces** 
 Update `CarProcessingWorkflow.java` to include `CarImageAnalysisAgent` as the **first** sub-agent and add the `ImageContent` parameter:
 
 ```java title="CarProcessingWorkflow.java"
---8<-- "../../section-2/step-06/src/main/java/com/carmanagement/agentic/workflow/CarProcessingWorkflow.java"
+--8<-- "../../section-2/step-06/src/main/java/com/carmanagement/agentic/workflows/CarProcessingWorkflow.java"
 ```
 
 **Key Changes:**

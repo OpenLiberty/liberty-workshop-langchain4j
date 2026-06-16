@@ -29,7 +29,7 @@ public class CustomerSupportAgentWebSocket {
 
     @OnMessage
     public void onMessage(String message, Session session) throws IOException {
-        session.getBasicRemote().sendText(customerSupportAgent.chat(message));
+        session.getBasicRemote().sendText(customerSupportAgent.chat(session.getId(), message));
     }
 
     @OnClose

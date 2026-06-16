@@ -177,7 +177,7 @@ The `ApprovalService` manages the `CompletableFuture` instances that pause and r
 In `src/main/java/com/carmanagement/service`, create `ApprovalService.java`:
 
 ```java title="ApprovalService.java"
---8<-- "../../section-2/step-05/src/main/java/com/carmanagement/service/ApprovalService.java"
+--8<-- "../../section-2/step-05/src/main/java/com/carmanagement/services/ApprovalService.java"
 ```
 
 **Key Points:**
@@ -195,7 +195,7 @@ This entity stores proposals in the database so the UI can display them.
 In `src/main/java/com/carmanagement/model`, create `ApprovalProposal.java`:
 
 ```java title="ApprovalProposal.java"
---8<-- "../../section-2/step-05/src/main/java/com/carmanagement/model/ApprovalProposal.java"
+--8<-- "../../section-2/step-05/src/main/java/com/carmanagement/models/ApprovalProposal.java"
 ```
 
 ### Create the ApprovalResource
@@ -211,7 +211,7 @@ Create `src/main/java/com/carmanagement/resource/ApprovalResource.java` to creat
 In `src/main/java/com/carmanagement/resource`, create `ApprovalResource.java`:
 
 ```java title="ApprovalResource.java"
---8<-- "../../section-2/step-05/src/main/java/com/carmanagement/resource/ApprovalResource.java"
+--8<-- "../../section-2/step-05/src/main/java/com/carmanagement/resources/ApprovalResource.java"
 ```
 
 
@@ -243,7 +243,7 @@ We also need to add the approval tracking fields to the data model.
 Update `src/main/java/com/carmanagement/model/CarConditions.java`:
 
 ```java title="CarConditions.java" hl_lines="8-9 11-15 20-22"
---8<-- "../../section-2/step-05/src/main/java/com/carmanagement/model/CarConditions.java"
+--8<-- "../../section-2/step-05/src/main/java/com/carmanagement/models/CarConditions.java"
 ```
 
 ### Update Application Configuration

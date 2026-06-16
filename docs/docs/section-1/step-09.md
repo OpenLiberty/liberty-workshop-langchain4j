@@ -41,7 +41,7 @@ To prevent prompt injection, we will use an AI service to analyze the user's inp
 ==Create the `dev.langchain4j.quarkus.workshop.PromptInjectionDetectionService` class with the following content:==
 
 ```java title="PromptInjectionDetectionService.java"
---8<-- "../../section-1/step-09/src/main/java/dev/langchain4j/quarkus/workshop/PromptInjectionDetectionService.java"
+--8<-- "../../section-1/step-09/src/main/java/dev/langchain4j/workshop/PromptInjectionDetectionService.java"
 ```
 
 This is a regular AI Service similar to the `dev.langchain4j.quarkus.workshop.CustomerSupportAgent` service we've been working with since the first step.
@@ -70,7 +70,7 @@ Let's now implement the guardrails to prevent prompt injection.
 Create the `dev.langchain4j.quarkus.workshop.PromptInjectionGuard` class with the following content:
 
 ```java title="PromptInjectionGuard.java"
---8<-- "../../section-1/step-09/src/main/java/dev/langchain4j/quarkus/workshop/PromptInjectionGuard.java"
+--8<-- "../../section-1/step-09/src/main/java/dev/langchain4j/workshop/PromptInjectionGuard.java"
 ```
 
 Notice that the `PromptInjectionGuard` class implements the `InputGuardrail` interface.
@@ -89,7 +89,7 @@ Now all we have to do is annotate our `dev.langchain4j.quarkus.workshop.Customer
 annotation highlighted below:
 
 ```java hl_lines="3 22" title="CustomerSupportAgent.java"
---8<-- "../../section-1/step-09/src/main/java/dev/langchain4j/quarkus/workshop/CustomerSupportAgent.java"
+--8<-- "../../section-1/step-09/src/main/java/dev/langchain4j/workshop/CustomerSupportAgent.java"
 ```
 
 Notice the `@InputGuardrails(PromptInjectionGuard.class)` annotation that was added to the `chat` method.
@@ -103,7 +103,7 @@ CustomerSupportAgentWebSocket class a bit.
 ==Edit the `dev.langchain4j.quarkus.workshop.CustomerSupportAgentWebSocket` class to become:==
 
 ```java hl_lines="3 23-34" title="CustomerSupportAgentWebSocket.java"
---8<-- "../../section-1/step-09/src/main/java/dev/langchain4j/quarkus/workshop/CustomerSupportAgentWebSocket.java"
+--8<-- "../../section-1/step-09/src/main/java/dev/langchain4j/workshop/CustomerSupportAgentWebSocket.java"
 ```
 
 We added a `try-catch` block around the call to the `chat` method.

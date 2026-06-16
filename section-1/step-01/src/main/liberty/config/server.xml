@@ -2,11 +2,16 @@
 <server description="LangChain4J Workshop Server">
 
     <!-- Enable features -->
+    <!-- -8<- [start:features]       -->
     <featureManager>
-        <feature>jakartaee-10.0</feature>
-        <feature>websocket-2.1</feature>
-        <feature>mpConfig-3.1</feature>
+        <platform>jakartaee-10.0</platform>
+        <platform>microprofile-7.1</platform>
+        <feature>cdi</feature>
+        <feature>websocket</feature>
+        <feature>restfulWS</feature>
+        <feature>mpConfig</feature>
     </featureManager>
+    <!-- -8<- [end:features]       -->
 
     <!-- HTTP endpoint configuration -->
     <httpEndpoint
@@ -19,9 +24,12 @@
     <!-- Application configuration -->
     <webApplication
         id="langchain4j-workshop"
-        location="langchain4j-workshop.war"
+        location="langchain4j-workshop-1-01.war"
         contextRoot="/">
+        <classloader apiTypeVisibility="+third-party" />
     </webApplication>
+
+    <httpSession/>
 
     <!-- Logging configuration -->
     <logging
@@ -30,10 +38,4 @@
         maxFiles="10"
         consoleLogLevel="INFO"
     />
-
-    <!-- Basic user registry -->
-    <basicRegistry id="basic" realm="BasicRealm">
-        <user name="admin" password="admin" />
-        <user name="user" password="user" />
-    </basicRegistry>
 </server>

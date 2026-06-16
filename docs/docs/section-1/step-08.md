@@ -31,12 +31,12 @@ In your terminal, make sure you're in the main directory of the workshop, and th
 You should now see a new `quarkus-workshop-langchain4j-08-mcp-server` folder. In it, create a new `src/main/java/dev/langchain4j/quarkus/workshop/WeatherClient.java` file. This will be our REST client to call the remote weather API. ==Populate it with the below code:==
 
 ```java title="WeatherClient.java"
---8<-- "../../section-1/step-08-mcp-server/src/main/java/dev/langchain4j/quarkus/workshop/WeatherClient.java"
+--8<-- "../../section-1/step-08-mcp-server/src/main/java/dev/langchain4j/workshop/WeatherClient.java"
 ```
 Now create an MCP server class that will contain methods annotated with @Tool, just like we did in the previous step for our local function calling. The only difference is that in this case, the MCP Tools we define will be available over the wire using the MCP protocol and a given transport type.
 
 ```java title="Weather.java"
---8<-- "../../section-1/step-08-mcp-server/src/main/java/dev/langchain4j/quarkus/workshop/Weather.java"
+--8<-- "../../section-1/step-08-mcp-server/src/main/java/dev/langchain4j/workshop/WeatherTools.java"
 ```
 
 Great! All that's left is to add some configurations to our project. ==To the application.properties, add the following:==
@@ -73,15 +73,8 @@ Quarkus LangChain4j supports MCP with equally minimal work. To use it, we need t
 ==Open the `pom.xml` file in your **main project** (ie. NOT the one containing the MCP Server) and add the following dependency:==
 
 ```xml title="pom.xml"
---8<-- "../../section-1/step-08/pom.xml:step-8"
+--8<-- "../../section-1/step-08/pom.xml:mcp"
 ```
-
-!!! tip
-    You could also open another terminal and run
-
-    ```shell
-    ./mvnw quarkus:add-extension -Dextensions="quarkus-langchain4j-mcp"
-    ```
 
 The LangChain4j MCP dependency will allow us to call remote MCP servers. Remember, MCP servers can be written in Java, like the one we created above, but in fact they can be any kind of technology that exposes the MCP protocol.
 
@@ -100,8 +93,8 @@ We'll add a `@McpToolBox("weather")` annotation to our AI Service to reference t
 
 ==In the `CustomerSupportAgent.java` file, update the `SystemMessage` with the following:==
 
-```java title="CustomerSupportAgent.java"
---8<-- "../../section-1/step-08/src/main/java/dev/langchain4j/quarkus/workshop/CustomerSupportAgent.java"
+```java hl_lines="14 27-28" title="CustomerSupportAgent.java"
+--8<-- "../../section-1/step-08/src/main/java/dev/langchain4j/workshop/CustomerSupportAgent.java"
 ```
 
 ## Testing the function calling

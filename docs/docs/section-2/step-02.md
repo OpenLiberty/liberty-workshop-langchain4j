@@ -304,7 +304,7 @@ Before creating the workflow, we need a data model to return both the car condit
 In `src/main/java/com/carmanagement/model`, create `CarConditions.java`:
 
 ```java title="CarConditions.java"
---8<-- "../../section-2/step-02/src/main/java/com/carmanagement/model/CarConditions.java"
+--8<-- "../../section-2/step-02/src/main/java/com/carmanagement/models/CarConditions.java"
 ```
 
 This simple record combines the results from both agents in our workflow.
@@ -350,7 +350,7 @@ Now, create the workflow that orchestrates both agents.
 In `src/main/java/com/carmanagement/agentic/workflow`, create `CarProcessingWorkflow.java`:
     
 ```java hl_lines="18-20" title="CarProcessingWorkflow.java"
---8<-- "../../section-2/step-02/src/main/java/com/carmanagement/agentic/workflow/CarProcessingWorkflow.java"
+--8<-- "../../section-2/step-02/src/main/java/com/carmanagement/agentic/workflows/CarProcessingWorkflow.java"
 ```
 
 **Let's break it down:**
@@ -423,7 +423,7 @@ Now update the service to use the workflow instead of calling agents directly.
 Update `src/main/java/com/carmanagement/service/CarManagementService.java`:
 
 ```java hl_lines="17-18 34-43" title="CarManagementService.java"
---8<-- "../../section-2/step-02/src/main/java/com/carmanagement/service/CarManagementService.java"
+--8<-- "../../section-2/step-02/src/main/java/com/carmanagement/services/CarManagementService.java"
 ```
 
 **What changed?**

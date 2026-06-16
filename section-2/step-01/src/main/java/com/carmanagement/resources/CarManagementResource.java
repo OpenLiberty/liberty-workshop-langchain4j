@@ -14,6 +14,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.Response;
 
+// --8<-- [start:car-management]
 /**
  * REST resource for car management operations.
  */
@@ -51,3 +52,4 @@ public class CarManagementResource {
         }
     }
 }
+// --8<-- [end:car-management]
