@@ -2,11 +2,18 @@
 <server description="LangChain4J Workshop Server">
 
     <!-- Enable features -->
+    <!-- -8<- [start:features]       -->
     <featureManager>
-        <feature>jakartaee-10.0</feature>
-        <feature>websocket-2.1</feature>
-        <feature>mpConfig-3.1</feature>
+        <platform>jakartaee-10.0</platform>
+        <platform>microprofile-7.1</platform>
+        <feature>cdi</feature>
+        <feature>enterpriseBeansLite</feature>
+        <feature>persistence</feature>
+        <feature>restfulWS</feature>
+        <feature>websocket</feature>
+        <feature>mpConfig</feature>
     </featureManager>
+    <!-- -8<- [end:features]       -->
 
     <!-- HTTP endpoint configuration -->
     <httpEndpoint
@@ -32,12 +39,7 @@
         consoleLogLevel="INFO"
     />
 
-    <!-- Basic user registry -->
-    <basicRegistry id="basic" realm="BasicRealm">
-        <user name="admin" password="admin" />
-        <user name="user" password="user" />
-    </basicRegistry>
-
+    <!-- -8<- [start:datasource]       -->
     <library id="postgresql-library">
         <fileset dir="${shared.resource.dir}" includes="*.jar" />
     </library>
@@ -45,11 +47,12 @@
     <dataSource id="default" jndiName="jdbc/postgresql">
         <jdbcDriver libraryRef="postgresql-library" />
         <properties.postgresql
-            serverName="localhost"
-            portNumber="5432"
-            databaseName="postgres"
-            user="postgres"
-            password="password"
+            serverName="${vector.store.hostname}"
+            portNumber="${vector.store.port}"
+            databaseName="${vector.store.database}"
+            user="${vector.store.username}"
+            password="${vector.store.password}"
         />
     </dataSource>
+    <!-- -8<- [end:datasource]       -->
 </server>

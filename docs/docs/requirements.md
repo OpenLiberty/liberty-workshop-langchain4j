@@ -4,23 +4,25 @@
 
 - **JDK 21.0 or later** – [Download from Adoptium](https://adoptium.net/){target="_blank"}
 - **OpenAI API key** – provided by the workshop organizer
-- **Podman or Docker** – see [Podman installation](https://podman.io/getting-started/installation){target="_blank"} or [Docker installation](https://docs.docker.com/get-docker/){target="_blank"}
-    - If you use Podman, we recommend [Podman Desktop](https://podman-desktop.io/docs/installation){target="_blank"} for easier container management.
+- **Podman or Docker** – see [Podman installation](https://podman.io/getting-started/installation){target="_blank"} or
+  [Docker installation](https://docs.docker.com/get-docker/){target="_blank"}
+    - If you use Podman, we recommend [Podman Desktop](https://podman-desktop.io/docs/installation){target="_blank"} for
+      easier container management.
 - **IDE with Java support** – IntelliJ, Eclipse, VSCode (with Java extension), etc.
 - **Terminal** – to run commands
 - _(Optional)_ **Git** – [Installation guide](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git){target="_blank"}
-
-[//]: # (???+ note "Want to use our environment rather than yours?")
-
-[//]: # (    If you are running this as part of an instructor-led workshop and have been provided a virtual machine, [click here]&#40;rhel-setup.md&#41; to learn about how to use it if you'd prefer it over using your own laptop.)
-
 
 ---
 
 ## AI Model Requirements
 
-You will need an OpenAI API key to complete this workshop.  
-If your instructor provided a key, use that one. Otherwise, [create an API key](https://platform.openai.com/docs/quickstart/create-and-export-an-api-key){target="_blank"}.
+### Using OpenAI
+
+All of the examples in this workshop use OpenAI by default to serve the LLM that is used to build our application. If
+you want to use them "as-is", you will need an OpenAI API key to complete this workshop. 
+
+If you do not already have one,
+[create an API key](https://developers.openai.com/api/docs/quickstart#create-and-export-an-api-key){target="_blank"}.
 
 ??? info "No instructor-provided key?"
     New OpenAI developer accounts receive $5 in free trial credits.  
@@ -42,34 +44,58 @@ Once you have a key, set it as an environment variable:
     $Env:OPENAI_API_KEY = <your-key>
     ```
 
+### Using other models
+
+If you do not want to use OpenAI to serve the LLM, LangChain4j and LangChain4j CDI makes it straightforward to integrate
+any other service providers. For instance we could serve our model on our local machine using an 
+[Ollama](https://ollama.com/) server.
+
+The applications that you will build are configured using the 
+`src/main/resources/META-INF/microprofile-config.properties` file. Each one will include an example `base-url` property
+that can be used to configure the agent to connect to a specific LLM:
+
+```properties title="application.properties"
+# If you want to use a different provider or run an LLM on your local machine,
+# uncomment this line and update the url/port accordingly.
+# dev.langchain4j.cdi.plugin.customer-support-agent.config.base-url=http://localhost:11434/v1
+```
+
+Simply uncomment this line and modify the value of the `base-url` property to point at your own LLM. You may also need
+to specify an API key for your model and the model that is being served. In order to do this, modify the `api-key` and
+`model-name` properties defined in the `src/main/resources/META-INF/microprofile-config.properties` file. For example:
+
+```properties title="application.properties"
+dev.langchain4j.cdi.plugin.customer-support-agent.config.api-key=${MY_API_KEY}
+dev.langchain4j.cdi.plugin.customer-support-agent.config.model-name=gpt-oss:20b
+```
+
 ---
 
 ## Good to Know
 
-### Quarkus Dev Mode
+### Liberty Dev Mode
 
-Run your Quarkus app in **dev mode** from the project directory:
+All of the examples in this workshop use [Open Liberty](https://openliberty.io/) to run the agent applications. You can
+run the applications in [dev mode](https://openliberty.io/docs/latest/development-mode.html) from the project directory:
 
 ```bash
-./mvnw quarkus:dev
+./mvnw liberty:dev
 ```
 
 Dev mode automatically recompiles your code on every change.
-Your app will be available at http://localhost:8080/.
+Your app will be available at http://localhost:9080/.
 
 !!! warning "Switching steps"
     Stop the running application (Ctrl+C) before starting the next step.
 
-### Dev UI
-
-Quarkus ships with a [Dev UI](https://quarkus.io/guides/dev-ui){target="\_blank"}, available only in dev mode at [http://localhost:8080/q/dev/](http://localhost:8080/q/dev/).
-Think of it as your **toolbox** when building Quarkus applications.
-
 ### Debugging
 
 To debug an app in dev mode, put breakpoints in your code and attach your IDE debugger.
-In IntelliJ, use `Run > Attach to Process` and select the Quarkus process.
-Other IDEs (Eclipse, VSCode) support similar remote debugging.
+In VSCode, use the
+[Liberty Tools](https://marketplace.visualstudio.com/items?itemName=Open-Liberty.liberty-dev-vscode-ext) extension.
+With the application running in Open Liberty, right click on the application in the `LIBERTY DASHBOARD` view in the
+explorer and select `Attach debugger`.
+Other IDEs (Eclipse, IntelliJ) support similar remote debugging.
 
 ---
 
@@ -80,16 +106,16 @@ Either clone the repository with Git or download a ZIP archive.
 ### With Git
 
 ```shell
-git clone https://github.com/quarkusio/quarkus-workshop-langchain4j.git
-cd quarkus-workshop-langchain4j
+git clone https://github.com/msmiths/langchain4j-workshop.git
+cd langchain4j-workshop
 ```
 
 ### Direct Download
 
 ```shell
-curl -L -o workshop.zip https://github.com/quarkusio/quarkus-workshop-langchain4j/archive/refs/heads/main.zip
+curl -L -o workshop.zip https://github.com/msmiths/langchain4j-workshop/archive/refs/heads/main.zip
 unzip workshop.zip
-cd quarkus-workshop-langchain4j-main
+cd langchain4j-workshop-main
 ```
 
 ---
@@ -128,7 +154,7 @@ If you get stuck, simply switch to the `step-xx` directory of the last completed
 
 Once ready, you can pick one of these entries points to start the workshop:
 
-- If you discover Quarkus and Quarkus LangChain4j, start with [Section 1 - AI Apps](./section-1/step-01.md).
-- If you want to learn more advanced AI-Infused features, such as MCP, Guardrails, Observability, and Fault Tolerance, start with [Section 1 - Step 08](./section-1/step-08.md).
+- If you are new to LangChain4j and LangChain4j CDI, start with [Section 1 - AI Apps](./section-1/step-01.md).
+- If you want to learn more advanced AI-Infused features, such as MCP, Guardrails, Observability, and Fault Tolerance,
+  start with [Section 1 - Step 08](./section-1/step-08.md).
 - If you want to jump directly into agentic systems, start with [Section 2 - Agentic Workflows](./section-2/step-01.md).
-

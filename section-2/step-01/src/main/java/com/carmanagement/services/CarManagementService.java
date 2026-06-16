@@ -25,6 +25,7 @@ public class CarManagementService {
     @Inject
     private CleaningAgent cleaningAgent;
 
+    // --8<-- [start:processCarReturn]
     /**
      * Process a car return from any operation.
      *
@@ -60,4 +61,5 @@ public class CarManagementService {
             throw e;
         }
     }
+    // --8<-- [end:processCarReturn]
 }

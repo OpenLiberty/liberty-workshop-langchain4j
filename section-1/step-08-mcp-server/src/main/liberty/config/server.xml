@@ -3,11 +3,12 @@
 
     <!-- Enable features -->
     <featureManager>
+        <platform>jakartaee-10.0</platform>
+        <platform>microprofile-7.1</platform>
+        <feature>cdi</feature>
+        <feature>servlet</feature>
+        <feature>mpRestClient</feature>
         <feature>mcpServer-1.0</feature>
-        <feature>enterpriseBeansLite-4.0</feature>
-        <feature>transportSecurity-1.0</feature>
-        <feature>beanValidation-3.0</feature>
-        <feature>mpRestClient-4.0</feature>
     </featureManager>
 
     <!-- HTTP endpoint configuration -->
@@ -33,12 +34,6 @@
         maxFiles="10"
         consoleLogLevel="INFO"
     />
-
-    <!-- Basic user registry -->
-    <basicRegistry id="basic" realm="BasicRealm">
-        <user name="admin" password="admin" />
-        <user name="user" password="user" />
-    </basicRegistry>
 
     <sslDefault sslRef="defaultSSLConfig" />
 

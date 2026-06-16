@@ -6,6 +6,7 @@ import dev.langchain4j.service.UserMessage;
 import dev.langchain4j.service.V;
 import jakarta.enterprise.context.ApplicationScoped;
 
+// --8<-- [start:cleaningAgent]
 /**
  * Agent that determines what cleaning services to request.
  */
@@ -42,3 +43,4 @@ public interface CleaningAgent {
         @V("feedback") String feedback
     );
 }
+// --8<-- [end:cleaningAgent]

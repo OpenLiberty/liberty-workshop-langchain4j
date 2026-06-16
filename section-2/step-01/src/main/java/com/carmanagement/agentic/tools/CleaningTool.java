@@ -12,6 +12,7 @@ import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.transaction.Transactional;
 
+// --8<-- [start:CleaningTool]
 /**
  * Tool for requesting cleaning operations.
  */
@@ -81,6 +82,7 @@ public class CleaningTool {
         logger.info("\uD83D\uDE97 CleaningTool result: {}", result);
         return result;
     }
+// --8<-- [end:CleaningTool]
 
     private String generateCleaningSummary(
         Integer carNumber,

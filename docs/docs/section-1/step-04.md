@@ -21,8 +21,8 @@ conversation but influences the overall experience.
 To add a system message, we need to enhance our `CustomerSupportAgent` interface.
 ==Update the `CustomerSupportAgent` interface content to become:==
 
-```java hl_lines="12-16" title="CustomerSupportAgent.java"
---8<-- "../../section-1/step-04/src/main/java/dev/langchain4j/quarkus/workshop/CustomerSupportAgent.java"
+```java hl_lines="17-21" title="CustomerSupportAgent.java"
+--8<-- "../../section-1/step-04/src/main/java/dev/langchain4j/workshop/CustomerSupportAgent.java"
 ```
 
 If you do not follow the workshop, the `step-04` directory already contains the updated `CustomerSupportAgent`
@@ -48,7 +48,7 @@ So, the LLM still understands the context and does not change its behavior radic
 ## Playing with the system message
 
 Now, let's test the system message.
-Make sure the application is running and open the browser at [http://localhost:8080](http://localhost:8080).
+Make sure the application is running and open the browser at [http://localhost:9080](http://localhost:9080).
 
 ==Let's ask the LLM to tell us a _story_==
 

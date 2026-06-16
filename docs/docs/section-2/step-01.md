@@ -188,7 +188,7 @@ Let's explore each component.
 The `CarManagementResource` provides REST APIs to handle car returns:
 
 ```java hl_lines="19 22" title="CarManagementResource.java"
---8<-- "../../section-2/step-01/src/main/java/com/carmanagement/resource/CarManagementResource.java:car-management"
+--8<-- "../../section-2/step-01/src/main/java/com/carmanagement/resources/CarManagementResource.java:car-management"
 ```
 
 **Key Points:**
@@ -203,7 +203,7 @@ The `CarManagementResource` provides REST APIs to handle car returns:
 The `CarManagementService` orchestrates the car return process:
 
 ```java hl_lines="1-2 13 19-24" title="CarManagementService.java"
---8<-- "../../section-2/step-01/src/main/java/com/carmanagement/service/CarManagementService.java:processCarReturn"
+--8<-- "../../section-2/step-01/src/main/java/com/carmanagement/services/CarManagementService.java:processCarReturn"
 ```
 
 **Key Points:**

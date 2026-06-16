@@ -5,6 +5,7 @@ import dev.langchain4j.cdi.spi.RegisterParallelAgent;
 /**
  * Workflow for processing car feedback in parallel.
  */
+// --8<-- [start:parallel-agent]
 @RegisterParallelAgent(
     name = "feedback-workflow",
     subAgentNames = {
@@ -13,6 +14,7 @@ import dev.langchain4j.cdi.spi.RegisterParallelAgent;
     },
     outputKey = "feedbackResult"
 )
+// --8<-- [end:parallel-agent]
 public interface FeedbackWorkflow {
 
     /**

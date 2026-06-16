@@ -9,6 +9,7 @@ import dev.langchain4j.cdi.spi.RegisterConditionalAgent;
 /**
  * Workflow for assigning cars to appropriate teams based on feedback analysis.
  */
+// --8<-- [start:conditional-agent]
 @RegisterConditionalAgent(
     name = "car-assignment-workflow",
     subAgentNames = {
@@ -46,3 +47,4 @@ public interface CarAssignmentWorkflow {
         return value != null && !value.isEmpty() && !value.toUpperCase().contains("NOT_REQUIRED");
     }
 }
+// --8<-- [end:conditional-agent]

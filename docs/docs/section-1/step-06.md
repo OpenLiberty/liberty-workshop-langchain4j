@@ -1,87 +1,23 @@
-# Step 06 - Deconstructing the RAG pattern
+# Step 06 - Using an external vector store
 
-In the previous step, we implemented a RAG (Retrieval Augmented Generation) pattern in our AI service using [EasyRAG](https://docs.quarkiverse.io/quarkus-langchain4j/dev/rag-easy-rag.html){target="_blank"}.
-Most of the complexity was hidden by EasyRAG.
-
-In this step, we will deconstruct the RAG pattern to understand how it works under the hood.
-We will see how we can customize it and use our own knowledge base and embedding model.
+In the previous step, we implemented a RAG (Retrieval Augmented Generation) pattern in our AI service using an
+_in memory_ vector store. In this step, we will modify our AI service to use an external vector store.
 
 If you want to see the final result of this step, you can check out the `step-06` directory.
 Otherwise, let's get started!
 
-## A bit of cleanup
-
-Let's start with a bit of cleanup.
-==First, open the `src/main/resources/application.properties` file and remove the following configuration:==
-
-```properties title="application.properties"
---8<-- "../../section-1/step-05/src/main/resources/application.properties:easy-rag"
-```
-
-==Then, open the `pom.xml` file and remove the following dependency:==
-
-```xml title="pom.xml"
---8<-- "../../section-1/step-05/pom.xml:easy-rag"
-```
-
-!!! tip
-    You could also open another terminal and run
-
-    ```shell
-    ./mvnw quarkus:remove-extension -Dextension=easy-rag
-    ```
-
-## Embedding model
-
-One of the core components of the RAG pattern is the embedding model.
-The embedding model is used to transform the text into numerical vectors.
-These vectors are used to compare the text and find the most relevant segments.
-
-Selecting a good embedding model is crucial.
-In the previous step, we used the default embedding model provided by OpenAI.
-You can however use your own embedding model as well.
-
-In this step, we will use the [bge-small-en-q](https://huggingface.co/neuralmagic/bge-small-en-v1.5-quant){target="_blank"} embedding model.
-
-==Add the following dependency to your `pom.xml` file:==
-
-```xml title="pom.xml"
---8<-- "../../section-1/step-06/pom.xml:embedding-bge"
-```
-
-[//]: # (!!! tip)
-
-[//]: # (    You could also open another terminal and run)
-
-[//]: # ()
-[//]: # (    ```shell)
-
-[//]: # (    ./mvnw quarkus:add-extension -Dextension=dev.langchain4j:langchain4j-embeddings-bge-small-en-q:0.35.0)
-
-[//]: # (    ```)
-
-This dependency provides the `bge-small-en-q` embedding model.
-It will run locally, on your machine.
-Thus, you do not have to send your document to a remote service to compute the embeddings.
-
-This embedding model generates vectors of size 384.
-It's a small model, but it's enough for our use case.
-
-To use the model, we will use the [`dev.langchain4j.model.embedding.onnx.bgesmallenq.BgeSmallEnQuantizedEmbeddingModel`](https://github.com/langchain4j/langchain4j-embeddings/blob/main/langchain4j-embeddings-bge-small-en-q/src/main/java/dev/langchain4j/model/embedding/onnx/bgesmallenq/BgeSmallEnQuantizedEmbeddingModel.java){target="_blank"} CDI bean automatically created by Quarkus by adding the following to `src/main/resources/application.properties`:
-
-```properties title="application.properties"
---8<-- "../../section-1/step-06/src/main/resources/application.properties:embedding-model"
-```
-
 ## Vector store
 
-Now that we have our embedding model, we need to store the embeddings.
-In the previous step, we used an _in memory_ store.
-Now we will use a persistent store to keep the embeddings between restarts.
+There are many options to store the embeddings, like
+[Infinispan](https://docs.quarkiverse.io/quarkus-langchain4j/dev/rag-infinispan-store.html){target="_blank"},
+[Pinecone](https://github.com/langchain4j/langchain4j/tree/release/1.16.x/langchain4j-pinecone){target="_blank"},
+[Qdrant](https://github.com/langchain4j/langchain4j/tree/release/1.16.x/langchain4j-qdrant){target="_blank"},
+specialized databases (like [Chroma](https://github.com/langchain4j/langchain4j/tree/release/1.16.x/langchain4j-chroma){target="_blank"}), etc.
+Here, we will use the [PostgreSQL pgVector store](https://github.com/langchain4j/langchain4j/tree/release/1.16.x/langchain4j-pgvector){target="_blank"},
+a popular relational database. For simplicity, we will run the database with Docker or Podman. If you are not able to 
+use Docker or Podman, you can skip this step and continue to use the in memory vector store.
 
-There are many options to store the embeddings, like [Redis](https://docs.quarkiverse.io/quarkus-langchain4j/dev/rag-redis.html){target="_blank"}, [Infinispan](https://docs.quarkiverse.io/quarkus-langchain4j/dev/rag-infinispan-store.html){target="_blank"}, specialized databases (like [Chroma](https://docs.quarkiverse.io/quarkus-langchain4j/dev/rag-chroma-store.html){target="_blank"}), etc.
-Here, we will use the [PostgreSQL pgVector store](https://docs.quarkiverse.io/quarkus-langchain4j/dev/rag-pgvector-store.html){target="_blank"}, a popular relational database. If you are not able to run Dev Services with Docker or Podman, you can use
-[an in-memory embedding store](#in-memory-embedding-store).
+### Configuring the vector store
 
 ==Add the following dependency to your `pom.xml` file:==
 
@@ -89,159 +25,119 @@ Here, we will use the [PostgreSQL pgVector store](https://docs.quarkiverse.io/qu
 --8<-- "../../section-1/step-06/pom.xml:pgvector"
 ```
 
-!!! tip
-    You could also open another terminal and run
+Now we will be able to use the [dev.langchain4j.store.embedding.pgvector.PgVectorEmbeddingStore](https://github.com/langchain4j/langchain4j/blob/main/langchain4j-pgvector/src/main/java/dev/langchain4j/store/embedding/pgvector/PgVectorEmbeddingStore.java) class to store and retrieve the embeddings.
 
-    ```shell
-    ./mvnw quarkus:add-extension -Dextension=langchain4j-pgvector
-    ```
+Before we can use the `PgVectorEmbeddingStore` class, we need to configure it. ==In the 
+`src/main/liberty/config` directory, create a file named `bootstrap.properties` with the following content:==
 
-This embedding store (like many others) needs to know the size of the embeddings that will be stored in advance.
-==Open the `src/main/resources/application.properties` file and add the following configuration:==
-
-```properties title="application.properties"
---8<-- "../../section-1/step-06/src/main/resources/application.properties:pgvector"
+```properties title="bootstrap.properties"
+--8<-- "../../section-1/step-06/src/main/liberty/config/bootstrap.properties"
 ```
 
-The value is the size of the vectors generated by the `bge-small-en-q` embedding model.
+Let's look at the configuration:
 
-Now we will be able to use the `io.quarkiverse.langchain4j.pgvector.PgVectorEmbeddingStore` bean to store and retrieve the embeddings.
+- `vector.store.hostname`: The hostname where the vector store is running. Since we are running it locally, we specify a
+  value of `localhost`. If you build the AI service into an image and run it in Docker or Podman as well, you will need
+  to specify the hostname or IP address of your local machine.
+- `vector.store.port`: The port that the vector store is listening on. We will specify this when we run the database
+  container.
+- `vector.store.database`: The name of the database in the vector store.
+- `vector.store.username`: The username used to connect to the vector store.
+- `vector.store.password`: The password used to connect to the vector store.
+- `vector.store.dimension`: The size of the embeddings that will be stored in the vector store. The value is the size of
+  the vectors generated by the
+  [all-minilm-l6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2){target="_blank"} embedding model.
 
-## Ingesting documents into the vector store
+### Implementing the vector store
 
-==While you are editing the `src/main/resources/application.properties` file, add the following configuration:==
+Now let's create the `PgVectorEmbeddingStore` bean. ==Create the
+`dev.langchain4j.workshop.PgVectorEmbeddingStoreProducer` class with the following content:==
 
-```properties title="application.properties"
---8<-- "../../section-1/step-06/src/main/resources/application.properties:rag"
+```java title="PgVectorEmbeddingStoreProducer.java"
+--8<-- "../../section-1/step-06/src/main/java/dev/langchain4j/workshop/PgVectorEmbeddingStoreProducer.java"
 ```
 
-This is a custom config property that we will use to specify the location of the documents that will be ingested into the vector store.
-It replaces the `quarkus.langchain4j.easy-rag.path` property from the previous step.
+This class simply creates an instance of the `PgVectorEmbeddingStore` bean using the properties that we defined in the
+`bootstrap.properties` file above.
 
-Now let's create our _ingestor_.
-Remember that the role of the _ingestor_ is to read the documents and store their embeddings in the vector store.
+Note that the `produceEmbeddingStore` method is annotated with the `@Produces` annotation. This means that our AI
+service will use the `PgVectorEmbeddingStore` bean created by the `produceEmbeddingStore` method whenever it needs to
+inject a bean `EmbeddingStore<TextSegment>`.
 
-![The ingestion process](../images/ingestion.png)
+Also note that the we specify that the bean should use the `embeddings` table to store and retrieve embeddings.
 
-==Create the `dev.langchain4j.quarkus.workshop.RagIngestion` class with the following content:==
+## Updating the ingestor
 
-```java title="RagIngestion.java"
---8<-- "../../section-1/step-06/src/main/java/dev/langchain4j/quarkus/workshop/RagIngestion.java"
+Now that we have implemented our vector store, we need to update our document ingestor to use it instead of the
+_in memory_ vector store. Modify the `RAGDocumentIngestor` as follows:
+
+```java hl_lines="8-9" title="RAGDocumentIngestor.java"
+--8<-- "../../section-1/step-06/src/main/java/dev/langchain4j/workshop/RAGDocumentIngestor.java:ingestor"
 ```
 
-This class ingests the documents from the `rag.location` location into the vector store.
-It runs when the application starts (thanks to the [`@Observes StartupEvent ev`](https://quarkus.io/guides/lifecycle#listening-for-startup-and-shutdown-events){target="_blank"} parameter).
+Note that we do not need to modify the configuration for our content retriever. The 
+`src/main/resources/META-INF/microprofile-config.properties` file specifies that our `doc-retriever` bean should use
+the default (unqualified) CDI bean for the embedding store. This will now be the the `PgVectorEmbeddingStore` bean.
 
-Additionally, it receives:
 
-- the `PgVectorEmbeddingStore` bean to store the embeddings,
-- the `BgeSmallEnQuantizedEmbeddingModel` bean to generate the embeddings,
-- the `rag.location` configuration property to know where the documents are.
-
-The `FileSystemDocumentLoader.loadDocumentsRecursively(documents)` method loads the documents from the given location.
-
-The `EmbeddingStoreIngestor` class is used to ingest the documents into the vector store.
-This is the cornerstone of the ingestion process.
-Configuring it correctly is crucial to the accuracy of the RAG pattern.
-Here, we use a recursive document splitter with a segment size of 100 tokens and an overlap size of 25 tokens (like we had in the previous step).
-
-!!! important
-    The splitter, the segment size, and the overlap size are crucial to the accuracy of the RAG pattern.
-    It depends on the documents you have and the use case you are working on.
-    There is no one-size-fits-all solution.
-    You may need to experiment with different configurations to find the best one for your use case.
-
-Finally, we trigger the ingestion process and log a message when it's done.
-
-### In-memory embedding store (for users who can't use Dev Services)
-
-If you are not able to run Dev Services with Docker or Podman, feel free to use the in-memory
-embedding store provided by LangChain4j.
-
-!!! important
-    This is just an emergency solution. If you are able to run Dev Services, please do so.
-
-If you followed previous section, remove the pgVector changes. Namely, you have to remove the pgVector dependency from the `pom.xml` so the in-memory embedding store can be used:
-
-```xml title="pom.xml"
---8<-- "../../section-1/step-06/pom.xml:pgvector"
+```properties
+dev.langchain4j.cdi.plugin.doc-retriever.config.embeddingStore=lookup:@default
 ```
-
-And create an `EmbeddingStore` producer in a new class `InMemoryEmbeddingStoreProvider`:
-
-```java
-package dev.langchain4j.quarkus.workshop;
-
-import dev.langchain4j.store.embedding.EmbeddingStore;
-import dev.langchain4j.store.embedding.inmemory.InMemoryEmbeddingStore;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.inject.Produces;
-
-@ApplicationScoped
-public class InMemoryEmbeddingStoreProvider {
-
-    @Produces
-    @ApplicationScoped
-    EmbeddingStore embeddingStore() {
-        return new InMemoryEmbeddingStore<>();
-    }
-}
-```
-
-`RagIngestion` will now work with the in-memory embedding store.
-
-## The retriever and augmentor
-
-Now that we have our documents ingested into the vector store, we need to implement the retriever.
-The retriever is responsible for finding the most relevant segments for a given query.
-The augmentor is responsible for extending the prompt with the retrieved segments.
-
-![The augmentation process](../images/augmentation.png)
-
-==Create the `dev.langchain4j.quarkus.workshop.RagRetriever` class with the following content:==
-
-```java title="RagRetriever.java"
---8<-- "../../section-1/step-06/src/main/java/dev/langchain4j/quarkus/workshop/RagRetriever.java:ragretriever-1"
---8<-- "../../section-1/step-06/src/main/java/dev/langchain4j/quarkus/workshop/RagRetriever.java:ragretriever-2"
-```
-
-The `create` method handles both the retrieval and the prompt augmentation.
-It uses the `PgVectorEmbeddingStore` bean to retrieve the embeddings and the `BgeSmallEnQuantizedEmbeddingModel` bean to generate the embeddings.
-
-!!! important
-    Using the same embedding model is crucial to use the same embedding model for the retriever and the ingestor.
-    Otherwise, the embeddings will not match, and the retriever will not find the relevant segments.
-
-The `EmbeddingStoreContentRetriever` class is used to retrieve the most relevant segments.
-We configure the maximum number of results to 3 (like in the previous step).
-Remember that more results means a bigger prompt.
-Not a problem here, but some LLMs have restrictions on the prompt (context) size.
-
-The content retriever can also be configured with a filter (applied on the segment metadata), requires a minimum score, etc.
-
-With this retriever, we can now build the prompt augmentation.
-We create a `DefaultRetrievalAugmentor` with the content retriever.
-It will:  
-
-1. Retrieve the most relevant segments for a given query (using the content retriever),
-2. Augment the prompt with these segments.
-
-The augmentor has other options, like how the prompt is modified, how to use multiple retrievers, etc.
-But let's keep it simple for now.
 
 ## Testing the application
 
 Let's see if everything works as expected.
-==If you stopped the application, restart it with the following command:==
-
-```shell
-./mvnw quarkus:dev
-```
 
 !!! important "Podman or Docker"
-    The application requires Podman or Docker to automatically start a PostgreSQL database.
+    The application requires Podman or Docker to run a PostgreSQL database.
     So make sure you have one of them installed and running.
 
+First, you need to run the vector store inside Docker or Podman. To start it, run one of the following commands,
+depending on the environment that you use:
+
+- Docker:
+
+    ```shell
+    docker run -d --name postgres -e POSTGRES_PASSWORD=password -p 5432:5432 pgvector/pgvector:pg17
+    ```
+
+- Podman:
+
+    ```shell
+    podman run -d --name postgres -e POSTGRES_PASSWORD=password -p 5432:5432 pgvector/pgvector:pg17
+    ```
+
+Before running the AI service, check that the vector store is running and that the database is clean. Connect to the
+`postgres` database using one of the following commands:
+
+- Docker:
+
+    ```shell
+    docker exec -ti postgres psql -h localhost -p 5432 postgres -U postgres -d postgres
+    ```
+
+- Podman:
+
+    ```shell
+    podman exec -ti postgres psql -h localhost -p 5432 postgres -U postgres -d postgres
+    ```
+
+This will run the `psql` command line and connect you to the `postgres` database. You should see the following output
+in your terminal:
+
+```shell
+psql (17.9 (Debian 17.9-1.pgdg12+1))
+Type "help" for help.
+
+postgres=#
+```
+
+You can check that there are currently no tables in the database using the `\dt` command:
+
+```shell
+postgres=# \dt
+Did not find any relations.
+```
 
 > 🛠 Troubleshooting – Docker Permission Issue on Linux
 
@@ -267,101 +163,72 @@ Add your user to the docker group:
 ```bash
 sudo usermod -aG docker $USER
 ```
+
 After adding your user to the Docker group, don't forget to log out and back in for the changes to take effect.
 
 
+Now that you have confirmed that the vector store is running, you need to start the AI service. ==If you stopped the
+application, restart it with the following command in a **different terminal window**:==
+
+```shell
+./mvnw liberty:dev
+```
+
 **When the application starts, it will ingest the documents into the vector store.**
 
+You should still see the following lines in the log that indicate that documents are
+being ingested. The difference now is that the documents are being ingested into the external vector store rather than
+the _in memory_ vector store.
 
-You can use the dev UI to verify the ingestion like we did in the previous step.
-This time, let's test with the chatbot instead:
-==Open your browser and go to `http://localhost:8080`.
-Ask the question to the chatbot and see if it retrieves the relevant segments and builds a cohesive answer:==
+```bash
+[INFO] INFO ai.djl.util.Platform -- Found matching platform from: wsjar:file:/Users/msmiths/.m2/repository/ai/djl/huggingface/tokenizers/0.36.0/tokenizers-0.36.0.jar!/native/lib/tokenizers.properties
+[INFO] DEBUG ai.djl.huggingface.tokenizers.jni.LibUtils -- Using cache dir: /Users/msmiths/.djl.ai/tokenizers/0.21.0-0.36.0-cpu-osx-aarch64
+[INFO] DEBUG ai.djl.huggingface.tokenizers.jni.LibUtils -- Loading huggingface library from: /Users/msmiths/.djl.ai/tokenizers/0.21.0-0.36.0-cpu-osx-aarch64
+[INFO] DEBUG ai.djl.huggingface.tokenizers.jni.LibUtils -- Loading native library: /Users/msmiths/.djl.ai/tokenizers/0.21.0-0.36.0-cpu-osx-aarch64/libtokenizers.dylib
+[INFO] INFO dev.langchain4j.liberty.workshop.producers.PgVectorEmbeddingStoreProducer -- Creating PgVector EmbeddingStore
+[INFO] DEBUG dev.langchain4j.store.embedding.EmbeddingStoreIngestor -- Starting to ingest 1 documents
+[INFO] DEBUG dev.langchain4j.store.embedding.EmbeddingStoreIngestor -- Documents were split into 39 text segments
+[INFO] DEBUG dev.langchain4j.store.embedding.EmbeddingStoreIngestor -- Starting to embed 39 text segments
+[INFO] DEBUG dev.langchain4j.store.embedding.EmbeddingStoreIngestor -- Finished embedding 39 text segments
+[INFO] DEBUG dev.langchain4j.store.embedding.EmbeddingStoreIngestor -- Starting to store 39 text segments into the embedding store
+[INFO] DEBUG dev.langchain4j.store.embedding.EmbeddingStoreIngestor -- Finished storing 39 text segments into the embedding store
+[INFO] INFO dev.langchain4j.workshop.RAGDocumentIngestor -- Ingested 1 docs in 167ms
+```
+
+To verify this, return to the terminal window that is connected to the vector store database and run the `\dt` command
+again to list the tables in the `postgres` database:
+
+```shell
+postgres=# \dt
+           List of relations
+ Schema |    Name    | Type  |  Owner   
+--------+------------+-------+----------
+ public | embeddings | table | postgres
+(1 row)
+```
+
+You can see that an `embeddings` table has been created.
+
+Now verify that the table contains the expected number of embeddings. From the logs above, you should expect to find
+`39` embeddings (segments) in the `embeddings` table. Run the following command to verify this:
+
+```shell
+postgres=# select count(*) from embeddings;
+ count 
+-------
+    39
+(1 row)
+```
+
+Let's test with the chatbot. ==Open your browser and go to [http://localhost:9080](http://localhost:9080). Ask the
+question to the chatbot and see if it retrieves the relevant segments and builds a cohesive answer:==
 
 ```
 What can you tell me about your cancellation policy?
 ```
 
-## Advanced RAG
-
-In this step, we deconstructed the RAG pattern to understand how it works under the hood.
-The RAG pattern is much more powerful than what we have seen here so far.
-
-You can use different embedding models, different vector stores, different retrievers, etc.
-The process can also be extended, especially the retrieval and the augmentation steps.
-
-![Advanced augmentation](../images/advanced-augmentation.png)
-
-You can use multiple retrievers, filters, require a minimum score, etc.
-When using multiple retrievers, you can combine the results, use the best one, etc.
-
-Just to give an example, we are going to customize the content injector, i.e., how the segments are injected into the prompt.
-Right now, you get something like:
-
-```
-
-<user query>
-Answer using the following information:
-<segment 1>
-<segment 2>
-<segment 3>
-```
-
-We are going to change it to:
-
-```
-<user query>
-Please, only use the following information:
-
-- <segment 1>
-- <segment 2>
-- <segment 3>
-```
-
-==Edit the `create` method in the `RagRetriever` class to:==
-
-```java hl_lines="30-38" title="RagRetriever.java"
---8<-- "../../section-1/step-06/src/main/java/dev/langchain4j/quarkus/workshop/RagRetriever.java:ragretriever-1"
---8<-- "../../section-1/step-06/src/main/java/dev/langchain4j/quarkus/workshop/RagRetriever.java:ragretriever-3"
---8<-- "../../section-1/step-06/src/main/java/dev/langchain4j/quarkus/workshop/RagRetriever.java:ragretriever-2"
-```
-
-Now if you ask the question to the chatbot, you will get a different prompt. You can see this if you examine the latest logs:
-
-```shell hl_lines="12"
-INFO  [io.qua.lan.ope.OpenAiRestApi$OpenAiClientLogger] (vert.x-eventloop-thread-0) Request:
-- method: POST
-- url: https://api.openai.com/v1/chat/completions
-- headers: [Accept: text/event-stream], [Authorization: Be...1f], [Content-Type: application/json], [User-Agent: langchain4j-openai], [content-length: 886]
-- body: {
-  "model" : "gpt-4o",
-  "messages" : [ {
-    "role" : "system",
-    "content" : "You are a customer support agent of a car rental company 'Miles of Smiles'.\nYou are friendly, polite and concise.\nIf the question is unrelated to car rental, you should politely redirect the customer to the right department.\n"
-  }, {
-    "role" : "user",
-    "content" : "What can you tell me about your cancellation policy?\nPlease, only use the following information:\n- 4. Cancellation Policy\n- 4. Cancellation Policy 4.1 Reservations can be cancelled up to 11 days prior to the start of the\n- booking period.\n4.2 If the booking period is less than 4 days, cancellations are not permitted.\n"
-  } ],
-  "temperature" : 0.3,
-  "top_p" : 1.0,
-  "stream" : true,
-  "stream_options" : {
-    "include_usage" : true
-  },
-  "max_tokens" : 1000,
-  "presence_penalty" : 0.0,
-  "frequency_penalty" : 0.0
-}
-```
-
-This injector is a simple example.
-It does not change the behavior of the RAG pattern.
-But it shows you how you can customize the RAG pattern to fit your needs.
-
 ## Conclusion
 
-In this step, we deconstructed the RAG pattern to understand how it works under the hood.
-We used our own embedding model and vector store.
-We have seen the various aspects of the process and how you can customize them.
+In this step, modified our RAG implementation to store the embeddings in an external vector store.
 
 In the [next step](./step-07.md) let's switch to another very popular pattern when using LLMs: Function Calls and Tools.

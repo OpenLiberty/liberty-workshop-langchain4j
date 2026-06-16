@@ -3,9 +3,12 @@
 
     <!-- Enable features -->
     <featureManager>
-        <feature>jakartaee-10.0</feature>
-        <feature>websocket-2.1</feature>
-        <feature>mpConfig-3.1</feature>
+        <platform>jakartaee-10.0</platform>
+        <platform>microprofile-7.1</platform>
+        <feature>cdi</feature>
+        <feature>websocket</feature>
+        <feature>restfulWS</feature>
+        <feature>mpConfig</feature>
     </featureManager>
 
     <!-- HTTP endpoint configuration -->
@@ -31,10 +34,4 @@
         maxFiles="10"
         consoleLogLevel="INFO"
     />
-
-    <!-- Basic user registry -->
-    <basicRegistry id="basic" realm="BasicRealm">
-        <user name="admin" password="admin" />
-        <user name="user" password="user" />
-    </basicRegistry>
 </server>
