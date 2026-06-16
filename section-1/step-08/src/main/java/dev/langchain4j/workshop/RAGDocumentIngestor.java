@@ -1,8 +1,7 @@
 package dev.langchain4j.workshop;
 
-import dev.langchain4j.data.document.loader.ClassPathDocumentLoader;
-
 import dev.langchain4j.data.document.Document;
+import dev.langchain4j.data.document.loader.ClassPathDocumentLoader;
 import dev.langchain4j.data.document.parser.TextDocumentParser;
 import dev.langchain4j.data.document.splitter.DocumentSplitters;
 import dev.langchain4j.data.segment.TextSegment;
@@ -21,13 +20,12 @@ import java.net.URISyntaxException;
 import java.util.List;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ApplicationScoped
-public class DocumentRAGIngestor {
-    private static final Logger logger = LoggerFactory.getLogger(DocumentRAGIngestor.class);
+public class RAGDocumentIngestor {
+    private static final Logger logger = LoggerFactory.getLogger(RAGDocumentIngestor.class);
 
     @Produces
     private EmbeddingModel embeddingModel = new AllMiniLmL6V2EmbeddingModel();

@@ -29,12 +29,9 @@
         <liberty.version>26.0.0.2</liberty.version>
 
         <langchain4j.version>1.15.0</langchain4j.version>
-        <langchain4j.beta.version>1.15.0-beta25</langchain4j.beta.version>
         <langchain4j.cdi.version>1.3.0</langchain4j.cdi.version>
 
         <jakarta.version>10.0.0</jakarta.version>
-
-        <mcp-jar-version>1.0.112</mcp-jar-version>
     </properties>
 
     <dependencyManagement>
@@ -84,6 +81,7 @@
             <scope>provided</scope>
         </dependency>
 
+        <!-- -8<- [start:mcp-server]       -->
         <dependency>
             <groupId>dev.langchain4j.cdi.mcp</groupId>
             <artifactId>langchain4j-cdi-mcp-server</artifactId>
@@ -92,6 +90,7 @@
             <groupId>dev.langchain4j.cdi.mcp</groupId>
             <artifactId>langchain4j-cdi-mcp-portable-ext</artifactId>
         </dependency>
+        <!-- -8<- [end:mcp-server]       -->
 
         <!-- Logging -->
         <dependency>
@@ -104,15 +103,6 @@
             <artifactId>logback-classic</artifactId>
             <version>${logback.version}</version>
         </dependency>
-<!-- 
-        <dependency>
-            <groupId>io.openliberty.mcp</groupId>
-            <artifactId>mcp-core</artifactId>
-            <version>${mcp-jar-version}</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/src/main/liberty/mcp_feature/io.openliberty.mcp_${mcp-jar-version}.jar</systemPath>
-        </dependency>
- -->
     </dependencies>
 
     <build>
@@ -146,12 +136,6 @@
                 <version>${liberty.tools.version}</version>
                 <configuration>
                     <serverName>weather-server</serverName>
-                    <runtimeArtifact>
-                        <groupId>io.openliberty.beta</groupId>
-                        <artifactId>openliberty-runtime</artifactId>
-                        <version>LATEST</version>
-                        <type>zip</type>
-                    </runtimeArtifact>
                 </configuration>
             </plugin>
         </plugins>

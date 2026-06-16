@@ -3,9 +3,15 @@
 
     <!-- Enable features -->
     <featureManager>
-        <feature>jakartaee-10.0</feature>
-        <feature>websocket-2.1</feature>
-        <feature>mpConfig-3.1</feature>
+        <platform>jakartaee-10.0</platform>
+        <platform>microprofile-7.1</platform>
+        <feature>cdi</feature>
+        <feature>enterpriseBeansLite</feature>
+        <feature>persistence</feature>
+        <feature>restfulWS</feature>
+        <feature>websocket</feature>
+        <feature>mpConfig</feature>
+        <feature>mpRestClient</feature>
     </featureManager>
 
     <!-- HTTP endpoint configuration -->
@@ -45,11 +51,11 @@
     <dataSource id="default" jndiName="jdbc/postgresql">
         <jdbcDriver libraryRef="postgresql-library" />
         <properties.postgresql
-            serverName="localhost"
-            portNumber="5432"
-            databaseName="postgres"
-            user="postgres"
-            password="password"
+            serverName="${vector.store.hostname}"
+            portNumber="${vector.store.port}"
+            databaseName="${vector.store.database}"
+            user="${vector.store.username}"
+            password="${vector.store.password}"
         />
     </dataSource>
 </server>
