@@ -49,4 +49,4 @@ RUN configure.sh
 FROM base as image
 
 # Copy application
-COPY --chown=1001:0  target/langchain4j-workshop.war /config/apps/langchain4j-workshop.war
+COPY --chown=1001:0  target/mcp-weather-service.war /config/apps/mcp-weather-service.war

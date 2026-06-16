@@ -37,7 +37,7 @@ public class WeatherTools {
         title = "Search for weather.",
         description = "Search for weather at the specified location. "
     )
-    public String searchNews(
+    public String getForecast(
         @ToolArg(
             name = "latitude",
             description = "Latitude of the location."

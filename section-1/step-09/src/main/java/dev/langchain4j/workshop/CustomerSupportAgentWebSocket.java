@@ -38,7 +38,7 @@ public class CustomerSupportAgentWebSocket {
     public void onMessage(String message, Session session) throws IOException {
         try {
             // Get the token stream from the agent
-            TokenStream tokenStream = customerSupportAgent.chat(message);
+            TokenStream tokenStream = customerSupportAgent.chat(session.getId(), message);
 
             // // Use the WebSocketTokenStreamProcessor to handle the stream
             WebSocketTokenStreamProcessor processor = new WebSocketTokenStreamProcessor(session);
