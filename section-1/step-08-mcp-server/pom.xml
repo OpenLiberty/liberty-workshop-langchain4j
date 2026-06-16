@@ -84,6 +84,15 @@
             <scope>provided</scope>
         </dependency>
 
+        <dependency>
+            <groupId>dev.langchain4j.cdi.mcp</groupId>
+            <artifactId>langchain4j-cdi-mcp-server</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>dev.langchain4j.cdi.mcp</groupId>
+            <artifactId>langchain4j-cdi-mcp-portable-ext</artifactId>
+        </dependency>
+
         <!-- Logging -->
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -95,7 +104,7 @@
             <artifactId>logback-classic</artifactId>
             <version>${logback.version}</version>
         </dependency>
-
+<!-- 
         <dependency>
             <groupId>io.openliberty.mcp</groupId>
             <artifactId>mcp-core</artifactId>
@@ -103,6 +112,7 @@
             <scope>system</scope>
             <systemPath>${project.basedir}/src/main/liberty/mcp_feature/io.openliberty.mcp_${mcp-jar-version}.jar</systemPath>
         </dependency>
+ -->
     </dependencies>
 
     <build>
