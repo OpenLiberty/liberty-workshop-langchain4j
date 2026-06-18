@@ -256,10 +256,15 @@ depending on the environment that you use:
     podman run -d --name otel-lgtm -p 3000:3000 -p 4317:4317 -p 4318:4318 --rm -ti grafana/otel-lgtm
     ```
 
-
 Now that the `Grafana Docker OpenTelemetry LGTM` container is running, you need to configure the `mpTelemetry` feature
-to forward traces, metrics and logs to it. ==In the `src/main/resources/META-INF/microprofile-config.properties` file,
-add the following configuration:==
+to forward traces, metrics and logs to it. ==First, we need to make the chat model listeners implemented in LangChain4j
+CDI avaivalbe to our AI server. Add the following dependency to the `pom.xml` file:==
+
+```properties title="pom.xml"
+--8<-- "../../section-1/step-10/pom.xml:lc4j-cdi-telemetry"
+```
+
+==Then, in the `src/main/resources/META-INF/microprofile-config.properties` file, add the following configuration:==
 
 ```properties title="microprofile-config.properties"
 --8<-- "../../section-1/step-10/src/main/resources/META-INF/microprofile-config.properties:opentelemetry-config"
@@ -334,41 +339,52 @@ wrong, we are able to handle it gracefully.
 
 Ultimately, calling an LLM is not much different than making traditional REST calls. If you're familiar with
 [MicroProfile](https://microprofile.io){target="_blank"}, you may know that it has a specification for how to implement
-Fault Tolerance. Quarkus implements this feature with the `quarkus-smallrye-fault-tolerance`
-extension. Go ahead and add it to your `pom.xml`:
-
-```xml title="pom.xml"
-        <!-- Fault Tolerance -->
-        <dependency>
-            <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-smallrye-fault-tolerance</artifactId>
-        </dependency>
-```
-
-The MicroProfile Fault Tolerance spec defines 3 main fault tolerance capabilities:
+Fault Tolerance. The MicroProfile Fault Tolerance spec defines 3 main fault tolerance capabilities:
 
 * **Timeout** - allows you to set a maximum time the call to the LLM should take before failing.
 * **Fallback** - allows you to call a fallback method in case there's an error
-* **Retry** - allows you to set how many times the call should be retried if there's an error, 
-and what delay there should be in between the calls
+* **Retry** - allows you to set how many times the call should be retried if there's an error, and what delay there
+  should be in between the calls
 
-Now all we have to do is annotate our `dev.langchain4j.workshop.CustomerSupportAgent` AI service with the following
-annotations:
+### Enabling the mpFaultTolerance feature
+
+Liberty provides support for Fault Tolerance in the `mpFaultTolerance` feature. ==You can enable the
+`mpFaultTolerance` feature in the Liberty server by adding it to the list of features in the
+`src/main/liberty/config/server.xml` file:==
+
+```xml hl_lines="13" title="server.xml"
+--8<-- "../../section-1/step-10/src/main/liberty/config/server.xml:mpTelemetry"
+```
+
+### Annotating the AI service
+
+Now all we have to do is annotate our `dev.langchain4j.workshop.CustomerSupportAgent` AI service witht the MP Fault
+Tolerance annotations. ==First, we need to make the fault tolerance annotations  avaivalbe to our AI server. Add the
+following dependency to the `pom.xml` file:==
+
+```properties title="pom.xml"
+--8<-- "../../section-1/step-10/pom.xml:lc4j-cdi-ft"
+```
+
+==Then, we can annotate our `dev.langchain4j.workshop.CustomerSupportAgent` AI service with the following annotations:==
 
 ```java hl_lines="15-17 44-64 67-72" title="CustomerSupportAgent.java"
 --8<-- "../../section-1/step-10/src/main/java/dev/langchain4j/workshop/CustomerSupportAgent.java"
 ```
 
-That's all. To test the implemented fault tolerance, we'll need to 'break' our application. You can either turn off
-your Wi-Fi, set the `@Timeout` value to something very low (e.g. 10), or you could set the inference server url to
-something that won't resolve, e.g. add the following property to your
-`src/main/resources/META-INF/microprofile-config.properties` file:
+### Testing fault tolerance
+
+To test the implemented fault tolerance, we'll need to 'break' our application. You can either turn off your Wi-Fi, set
+the `@Timeout` value to something very low (e.g. 10), or you could set the inference server url to something that won't
+resolve, e.g. add the following property to your `src/main/resources/META-INF/microprofile-config.properties` file:
 
 ```properties
 dev.langchain4j.cdi.plugin.customer-support-agent.config.base-url=https://api.example.com/v1/
 ```
 
-It's up to you to decide what your preferred way to create chaos is :).  Once you've done that, run your application and test it with different inputs. You should see that the fallback method is called when the LLM fails to produce a response within the specified timeout. This demonstrates the fault tolerance of our application.
+It's up to you to decide what your preferred way to create chaos is :).  Once you've done that, run your application and
+test it with different inputs. You should see that the fallback method is called when the LLM fails to produce a
+response within the specified timeout. This demonstrates the fault tolerance of our application.
 
 Don't forget to revert the change you just did!
 
@@ -376,10 +392,11 @@ Don't forget to revert the change you just did!
 
 ## Conclusion
 
-In this step, we introduced observability to retrieve useful information about the application's state, performance
-and behavior. This is a vital piece for a production-grade application, regardless of whether it's using AI or not.
-We also learned that Quarkus LangChain4j provides relatively straightforward ways to not only add observability
-to the application, but also to consult the data produces by it.
+In this step, we introduced observability to retrieve useful information about the application's state, performance and
+behavior. This is a vital piece for a production-grade application, regardless of whether it's using AI or not. We also
+learned that LangChain4j and LangChain4j CDI provide relatively straightforward ways to not only add observability to
+the application, but also to consult the data produced by it.
 
-We also introduced chaos engineering techniques to simulate failures in our application and observe how our 
-fallback mechanism responds. This is a crucial step for ensuring that our application can handle unexpected situations gracefully.
+We also introduced chaos engineering techniques to simulate failures in our application and observe how our  fallback
+mechanism responds. This is a crucial step for ensuring that our application can handle unexpected situations
+gracefully.
