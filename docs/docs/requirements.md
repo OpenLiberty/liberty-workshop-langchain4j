@@ -136,8 +136,12 @@ To avoid bandwidth issues during the session, we recommend pre-downloading them.
 
 ### Warm up Docker Images
 
-* Podman: `podman pull pgvector/pgvector:pg17`
-* Docker: `docker pull pgvector/pgvector:pg17`
+* Podman:
+    - `podman pull pgvector/pgvector:pg17`
+    - `podman pull grafana/otel-lgtm`
+* Docker:
+    - `docker pull pgvector/pgvector:pg17`
+    - `docker pull grafana/otel-lgtm`
 
 ---
 

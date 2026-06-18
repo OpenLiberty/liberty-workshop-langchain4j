@@ -32,7 +32,7 @@ USER 1001
 #COPY --chown=1001:0  interim-fixes /opt/ol/fixes/
 
 # Add config
-COPY --chown=1001:0  src/main/liberty/config/server.xml /config/
+COPY --chown=1001:0  src/main/liberty/config/* /config/
 
 # Modify feature repository (optional)
 # COPY --chown=1001:0 src/main/docker/featureUtility.properties /opt/ibm/wlp/etc/
