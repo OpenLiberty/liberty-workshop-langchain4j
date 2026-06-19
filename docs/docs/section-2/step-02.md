@@ -2,28 +2,31 @@
 
 ## Agentic Workflows
 
-In the previous step, you created an agent that could autonomously determine whether a returned car needed a cleaning or not.
-In the end, implementing this agent was not much different from creating a single AI service like we did in the [previous section](../section-1/step-01.md){target="_blank"}.
-It did, however, set us up for building a more advanced agentic system, which is what we're going to start building now.
-In this step, we're going to take a look at how we can orchestrate multiple agents using an **Agentic Workflow**.
+In the previous step, you created an agent that could autonomously determine whether a returned car needed a cleaning or
+not. In the end, implementing this agent was not much different from creating a single AI service like we did in the
+[previous section](../section-1/step-01.md){target="_blank"}. It did, however, set us up for building a more advanced
+agentic system, which is what we're going to start building now. In this step, we're going to take a look at how we can
+orchestrate multiple agents using an **Agentic Workflow**.
 
 ## New Requirement: Track Car Conditions
 
 The Miles of Smiles management team now wants to keep track of the condition of each car in their fleet.
 
-Currently, when cars are returned (either from rentals or from the cleaning), feedback is provided but not systematically recorded.
-This leads to inconsistent records and makes it difficult to track the overall condition of the fleet.
-Management wants the system to:
+Currently, when cars are returned (either from rentals or from the cleaning), feedback is provided but not
+systematically recorded. This leads to inconsistent records and makes it difficult to track the overall condition of the
+fleet. Management wants the system to:
 
 1. **Automatically analyze feedback** from **both** rental and cleaning returns
 2. **Update the car's condition** based on this feedback
 3. **Display the current condition** in the fleet management UI
 
-In this step, you'll learn how to compose **multiple agents into workflows** that work together to solve more complex problems.
+In this step, you'll learn how to compose **multiple agents into workflows** that work together to solve more complex
+problems.
 
 !!!note
-    "Workflow" is a pattern to compose agents with limited autonomy, where you define the control flow (when each agent is called).
-    This is different from the supervisor pattern where a special agent determines when to call _sub-agents_.
+    "Workflow" is a pattern to compose agents with limited autonomy, where you define the control flow (when each agent
+    is called). This is different from the supervisor pattern where a special agent determines when to call
+    _sub-agents_.
 
 ---
 
@@ -31,32 +34,40 @@ In this step, you'll learn how to compose **multiple agents into workflows** tha
 
 In this step, you will:
 
-- Understand the different types of **agentic workflows** ([sequential](https://docs.langchain4j.dev/tutorials/agents#sequential-workflow){target="_blank"}, [parallel](https://docs.langchain4j.dev/tutorials/agents#parallel-workflow){target="_blank"}, [loop](https://docs.langchain4j.dev/tutorials/agents#loop-workflow){target="_blank"}, and [conditional](https://docs.langchain4j.dev/tutorials/agents#conditional-workflow){target="_blank"})
+- Understand the different types of **agentic workflows**
+  ([sequential](https://docs.langchain4j.dev/tutorials/agents#sequential-workflow){target="_blank"},
+  [parallel](https://docs.langchain4j.dev/tutorials/agents#parallel-workflow){target="_blank"},
+  [loop](https://docs.langchain4j.dev/tutorials/agents#loop-workflow){target="_blank"}, and
+  [conditional](https://docs.langchain4j.dev/tutorials/agents#conditional-workflow){target="_blank"})
 - Build a **sequential workflow** that runs agents one after another
-- Learn about [**AgenticScope**](https://docs.langchain4j.dev/tutorials/agents#introducing-the-agenticscope){target="_blank"}, the shared context that enables agents to pass data between each other
-- Use the [**declarative workflow API**](https://docs.langchain4j.dev/tutorials/agents#declarative-api){target="_blank"} to build workflows
+- Learn about 
+  [**AgenticScope**](https://docs.langchain4j.dev/tutorials/agents#introducing-the-agenticscope){target="_blank"}, the
+  shared context that enables agents to pass data between each other
+- Use the [**declarative workflow API**](https://docs.langchain4j.dev/tutorials/agents#declarative-api){target="_blank"}
+  to build workflows
 - See how to extract and use results from multi-agent workflows
 
 ---
 
 ## Understanding Workflows
 
-With Quarkus LangChain4j, you can compose multiple agents to work together as a _team_.
-Much like the building blocks of a programming language, `quarkus-langchain4j-agentic` provides a few basic patterns to build different types of workflows.
+With LangChain4j and LangChain4j CDI, you can compose multiple agents to work together as a _team_. Much like the
+building blocks of a programming language, `langchain4j-agentic` provides a few basic patterns to build different types
+of workflows.
 
 LangChain4j provides 4 fundamental workflow patterns that can be combined to create sophisticated agentic systems:
 
 ### Sequential Workflows (`@SequenceAgent`)
 
-With sequential workflows, agents execute **one after another** in a defined order.
-(This is why it's also called "Prompt Chaining")
+With sequential workflows, agents execute **one after another** in a defined order. (This is why it's also called
+"Prompt Chaining")
 
 ```mermaid
 graph LR
     A["Agent 1"] --> B["Agent 2"] --> C["Agent 3"]
-    style A fill:#90EE90,stroke:#333,stroke-width:2,color:#000
-    style B fill:#90EE90,stroke:#333,stroke-width:2,color:#000
-    style C fill:#90EE90,stroke:#333,stroke-width:2,color:#000
+    style A fill:#2A27F5,stroke:#333,stroke-width:2,color:#000
+    style B fill:#2A27F5,stroke:#333,stroke-width:2,color:#000
+    style C fill:#2A27F5,stroke:#333,stroke-width:2,color:#000
 ```
 
 **When to use:** Each agent needs the output from the previous agent.
@@ -77,12 +88,13 @@ graph TD
     A --> End["Continue"]
     B --> End
     C --> End
-    style A fill:#87CEEB,stroke:#333,stroke-width:2,color:#000
-    style B fill:#87CEEB,stroke:#333,stroke-width:2,color:#000
-    style C fill:#87CEEB,stroke:#333,stroke-width:2,color:#000
+    style A fill:#2A27F5,stroke:#333,stroke-width:2,color:#000
+    style B fill:#2A27F5,stroke:#333,stroke-width:2,color:#000
+    style C fill:#2A27F5,stroke:#333,stroke-width:2,color:#000
 ```
 
-**When to use:** When agents can work independently and you want faster execution, and/or you want to aggregate the results of multiple agents.
+**When to use:** When agents can work independently and you want faster execution, and/or you want to aggregate the
+results of multiple agents.
 
 **Example:** Analyze for cleaning needs AND maintenance needs at the same time
 
@@ -103,13 +115,15 @@ graph TD
     Check2 -->|Yes| B[Agent 2]
     Check2 -->|No| End
     B --> End[Continue]
-    style A fill:#FFD700
-    style B fill:#FFD700
+    style A fill:#2A27F5,stroke:#333,stroke-width:2
+    style B fill:#2A27F5,stroke:#333,stroke-width:2
 ```
 
-**When to use:** When different execution paths are needed based on runtime data (e.g. the output of a previous agent execution).
+**When to use:** When different execution paths are needed based on runtime data (e.g. the output of a previous agent
+execution).
 
-**Example:** If maintenance needed → send to maintenance, if maintenance not needed and cleaning needed → send to cleaning
+**Example:** If maintenance needed → send to maintenance, if maintenance not needed and cleaning needed → send to
+cleaning
 
 ---
 
@@ -123,7 +137,7 @@ graph TD
     A --> Check{"Continue?"}
     Check -->|Yes| A
     Check -->|No| End["Done"]
-    style A fill:#FFA07A,stroke:#333,stroke-width:2,color:#000
+    style A fill:#2A27F5,stroke:#333,stroke-width:2,color:#000
 ```
 
 **When to use:** When iterative refinement or retries are needed.
@@ -134,11 +148,16 @@ graph TD
 
 ### Composing Workflows
 
-These basic workflows can be **nested within workflows** to create more advanced logic.
-You can use probabilistic AI when it makes sense, and create deterministic workflows to control the flow.
+These basic workflows can be **nested within workflows** to create more advanced logic. You can use probabilistic AI
+when it makes sense, and create deterministic workflows to control the flow.
 
 !!!note "Autonomous and Goal Oriented Agentic AI Patterns"
-    LangChain4j also provides additional building blocks to create more advanced and custom goal-oriented agentic AI patterns, such as the [supervisor pattern](https://docs.langchain4j.dev/tutorials/agents#supervisor-design-and-customization){target="_blank"}, [goal-oriented pattern](https://docs.langchain4j.dev/tutorials/agents#goal-oriented-agentic-pattern){target="_blank"}, [peer-to-peer](https://docs.langchain4j.dev/tutorials/agents#peer-to-peer-agentic-pattern){target="_blank"}, [human in the loop](https://docs.langchain4j.dev/tutorials/agents#human-in-the-loop){target="_blank"}, etc.
+    LangChain4j also provides additional building blocks to create more advanced and custom goal-oriented agentic AI
+    patterns, such as the
+    [supervisor pattern](https://docs.langchain4j.dev/tutorials/agents#supervisor-design-and-customization){target="_blank"},
+    [goal-oriented pattern](https://docs.langchain4j.dev/tutorials/agents#goal-oriented-agentic-pattern){target="_blank"},
+    [peer-to-peer](https://docs.langchain4j.dev/tutorials/agents#peer-to-peer-agentic-pattern){target="_blank"},
+    [human in the loop](https://docs.langchain4j.dev/tutorials/agents#human-in-the-loop){target="_blank"}, etc.
     
     We will visit these further along in this workshop. For now, let's focus on the basics.
 
@@ -187,45 +206,66 @@ sequenceDiagram
 
 === "Option 1: Continue from Step 01"
 
-    If you want to continue building on top of Step 01 code, you'll need to copy some updated UI files and the updated `CarInfo.java` from `step-02`:
+    If you want to continue building on top of Step 01 code, you'll need to copy some updated UI files and the updated
+    `CarInfo.java` from `step-02`:
 
     === "Linux / macOS"
         ```bash
         cd section-2/step-01
-        cp ../step-02/src/main/resources/META-INF/resources/css/styles.css ./src/main/resources/META-INF/resources/css/styles.css
-        cp ../step-02/src/main/resources/META-INF/resources/js/app.js ./src/main/resources/META-INF/resources/js/app.js
-        cp ../step-02/src/main/resources/META-INF/resources/index.html ./src/main/resources/META-INF/resources/index.html
+        cp ../step-02/src/main/webapp/css/styles.css ./src/main/webapp/css/styles.css
+        cp ../step-02/src/main/webapp/js/app.js ./src/main/webapp/js/app.js
+        cp ../step-02/src/main/webapp/index.html ./src/main/webapp/index.html
         cp ../step-02/src/main/resources/import.sql ./src/main/resources/import.sql
-        cp ../step-02/src/main/java/com/carmanagement/model/CarInfo.java ./src/main/java/com/carmanagement/model/CarInfo.java
+        cp ../step-02/src/main/java/com/carmanagement/models/CarInfo.java ./src/main/java/com/carmanagement/models/CarInfo.java
         ```
 
     === "Windows"
         ```cmd
         cd section-2\step-01
-        copy ..\step-02\src\main\resources\META-INF\resources\css\styles.css .\src\main\resources\META-INF\resources\css\styles.css
-        copy ..\step-02\src\main\resources\META-INF\resources\js\app.js .\src\main\resources\META-INF\resources\js\app.js
-        copy ..\step-02\src\main\resources\META-INF\resources\index.html .\src\main\resources\META-INF\resources\index.html
+        copy ..\step-02\src\main\webapp\css\styles.css .\src\main\webapp\css\styles.css
+        copy ..\step-02\src\main\webapp\js\app.js .\src\main\webapp\js\app.js
+        copy ..\step-02\src\main\webapp\index.html .\src\main\webapp\index.html
         copy ..\step-02\src\main\resources\import.sql .\src\main\resources\import.sql
-        copy ..\step-02\src\main\java\com\carmanagement\model\CarInfo.java .\src\main\java\com\carmanagement\model\CarInfo.java
+        copy ..\step-02\src\main\java\com\carmanagement\models\CarInfo.java .\src\main\java\com\carmanagement\models\CarInfo.java
         ```
 
     These files add the "Condition" column to the UI and update the data model to track car conditions.
 
 === "Option 2: Follow along using the completed solution"
 
-    If you prefer to follow along (without making any code changes), navigate to the completed `section-2/step-02` directory:
+    If you prefer to follow along (without making any code changes), navigate to the completed `section-2/step-02`
+    directory:
 
     === "Linux / macOS"
         ```bash
         cd section-2/step-02
-        ./mvnw quarkus:dev
+        ./mvnw liberty:dev
         ```
 
     === "Windows"
         ```cmd
         cd section-2\step-02
-        mvnw quarkus:dev
+        mvnw liberty:dev
         ```
+
+!!! important "Podman or Docker"
+    The application requires Podman or Docker to run a PostgreSQL database.
+    So make sure you have one of them installed and running.
+
+You need to run the database inside Docker or Podman. To start it, run one of the following commands, depending on the
+environment that you use:
+
+- Docker:
+
+    ```shell
+    docker run -d --name postgres -e POSTGRES_PASSWORD=password -p 5432:5432 pgvector/pgvector:pg17
+    ```
+
+- Podman:
+
+    ```shell
+    podman run -d --name postgres -e POSTGRES_PASSWORD=password -p 5432:5432 pgvector/pgvector:pg17
+    ```
 
 ---
 
@@ -254,24 +294,23 @@ Defines the agent's role as a **car condition analyzer**:
 
 Provides all the context needed:
 
-- Car details: `{carMake}`, `{carModel}`, `{carYear}`
-- **Previous condition**: `{carCondition}` — allows the agent to understand changes
-- Feedback from multiple sources: `{rentalFeedback}`, `{cleaningFeedback}`
+- Car details: `{{carMake}}`, `{{carModel}}`, `{{carYear}}`
+- **Previous condition**: `{{carCondition}}` — allows the agent to understand changes
+- Feedback: `{{feedback}}`
 
-### `@Agent` with `outputKey`
+### `@RegisterSimpleAgent` with `outputKey`
 
 Notice the new **`outputKey` parameter**:
 
-```java
-@Agent(outputKey = "carCondition", ...)
+```java hl_lines="6" title="CarConditionFeedbackAgent.java"
+--8<-- "../../section-2/step-02/src/main/java/com/carmanagement/agentic/agents/CarConditionFeedbackAgent.java:simple-agent"
 ```
 
-This tells the framework to store the agent's result in the `AgenticScope`'s state under the key `"carCondition"`.
-Other agents or the workflow can then access this value.
+This tells the framework to store the agent's result in the `AgenticScope`'s state under the key `carCondition`. Other
+agents or the workflow can then access this value.
 
 !!!note "**Understanding AgenticScope**"
-    To enable agents to work together, they need a way to **share data**.
-    This is where `AgenticScope` comes in.
+    To enable agents to work together, they need a way to **share data**. This is where `AgenticScope` comes in.
 
     **What is AgenticScope?**
     
@@ -292,8 +331,9 @@ Other agents or the workflow can then access this value.
         B -->|Extract| E["Workflow Result"]
     ```
     
-    When an agent completes, its result is stored in the `AgenticScope`'s state using the `outputKey` specified in the `@Agent` annotation.
-    The next agent in the workflow can access this value as an input parameter using the name specified in the `outputKey` annotation.
+    When an agent completes, its result is stored in the `AgenticScope`'s state using the `outputKey` specified in the
+    annotation. The next agent in the workflow can access this value as an input parameter using the name specified in
+    the `outputKey` annotation.
 
 ---
 
@@ -301,7 +341,7 @@ Other agents or the workflow can then access this value.
 
 Before creating the workflow, we need a data model to return both the car condition and whether a cleaning is required.
 
-In `src/main/java/com/carmanagement/model`, create `CarConditions.java`:
+In `src/main/java/com/carmanagement/models`, create `CarConditions.java`:
 
 ```java title="CarConditions.java"
 --8<-- "../../section-2/step-02/src/main/java/com/carmanagement/models/CarConditions.java"
@@ -317,28 +357,29 @@ The `CleaningAgent` needs to specify an `outputKey` so its result can be accesse
 
 Update `src/main/java/com/carmanagement/agentic/agents/CleaningAgent.java`:
 
-```java hl_lines="34-35" title="CleaningAgent.java"
+```java hl_lines="19" title="CleaningAgent.java"
 --8<-- "../../section-2/step-02/src/main/java/com/carmanagement/agentic/agents/CleaningAgent.java"
 ```
 
 **Key change:**
 
-The `@Agent` annotation adds `outputKey = "cleaningAgentResult"`. This stores the agent's response in the `AgenticScope`'s state, making it available to subsequent agents and the workflow output method.
+The `@RegisterSimpleAgent` annotation adds `outputKey = "cleaningAgentResult"`. This stores the agent's response in the
+`AgenticScope`'s state, making it available to subsequent agents and the workflow output method.
 
 ---
 
-## Create the Workflow Directory
+## Create the Workflows Directory
 
-If continuing from Step 01, create the workflow directory:
+If continuing from Step 01, create the `workflows` directory:
 
 === "Linux / macOS"
     ```bash
-    mkdir -p ./src/main/java/com/carmanagement/agentic/workflow
+    mkdir -p ./src/main/java/com/carmanagement/agentic/workflows
     ```
 
 === "Windows"
     ```cmd
-    mkdir .\src\main\java\com\carmanagement\agentic\workflow
+    mkdir .\src\main\java\com\carmanagement\agentic\workflows
     ```
 
 ---
@@ -347,28 +388,30 @@ If continuing from Step 01, create the workflow directory:
 
 Now, create the workflow that orchestrates both agents.
 
-In `src/main/java/com/carmanagement/agentic/workflow`, create `CarProcessingWorkflow.java`:
+In `src/main/java/com/carmanagement/agentic/workflows`, create `CarProcessingWorkflow.java`:
     
-```java hl_lines="18-20" title="CarProcessingWorkflow.java"
+```java hl_lines="11-18" title="CarProcessingWorkflow.java"
 --8<-- "../../section-2/step-02/src/main/java/com/carmanagement/agentic/workflows/CarProcessingWorkflow.java"
 ```
 
 **Let's break it down:**
 
-### `@SequenceAgent` Annotation
+### `@RegisterSequenceAgent` Annotation
 
 This annotation defines a **sequential workflow**:
 
 ```java
-    @SequenceAgent(
-            outputKey = "carConditions",
-            subAgents = { CleaningAgent.class, CarConditionFeedbackAgent.class })
+    subAgentNames = {
+        "cleaning-agent",
+        "car-condition-feedback-agent"
+    },
+    outputKey = "carConditions"
 ```
 
 - **`outputKey`**: Where to store the final workflow result in `AgenticScope`'s state
-- **`subAgents`**: The list of agents to execute in order
-  - Agent 1: `CleaningAgent`: determines if cleaning is needed
-  - Agent 2: `CarConditionFeedbackAgent`: updates the car condition
+- **`subAgentNames`**: The list of agents to execute in order (referenced by their CDI bean name)
+    - Agent 1: `CleaningAgent`: determines if cleaning is needed
+    - Agent 2: `CarConditionFeedbackAgent`: updates the car condition
 
 The agents execute sequentially: `CleaningAgent` → `CarConditionFeedbackAgent`
 
@@ -378,20 +421,16 @@ The workflow method signature defines **all the inputs** needed by any agent in 
 
 ```java
 CarConditions processCarReturn(
-    CarInfo carInfo,
+    String carMake,
+    String carModel,
+    Integer carYear,
     Integer carNumber,
+    String carCondition,
     String feedback
-)
+);
 ```
 
-These parameters are automatically populated into the `AgenticScope` when the workflow is invoked. By using context objects like `CarInfo`, we keep the workflow signature clean and maintainable even as the system grows more complex.
-
-**Parameters in AgenticScope:**
-
-When you pass parameters to a workflow, the `AgenticScope` stores them. Agents can then access fields within objects using dot notation in their `@UserMessage` templates:
-
-- `{carInfo.make}` accesses the `make` field of the `CarInfo` object
-- `{feedback}` accesses the feedback string directly
+These parameters are automatically populated into the `AgenticScope` when the workflow is invoked.
 
 ### `@Output`
 
@@ -407,12 +446,14 @@ static CarConditions output(String carCondition, String cleaningAgentResult) {
 
 **How it works:**
 
-1. The method parameters (`carCondition`, `cleaningAgentResult`) are automatically extracted from the `AgenticScope` by matching their names with the `outputKey` values from the agents
+1. The method parameters (`carCondition`, `cleaningAgentResult`) are automatically extracted from the `AgenticScope` by
+   matching their names with the `outputKey` values from the agents
 2. The method processes these values (in this case, checking if a cleaning is required)
 3. Returns a `CarConditions` object combining both results
 
 !!!success "Combining Outputs"
-    This is more powerful than just returning the last agent's result: you can combine outputs from multiple agents into a single output!
+    This is more powerful than just returning the last agent's result: you can combine outputs from multiple agents into
+    a single output!
 
 ---
 
@@ -420,9 +461,9 @@ static CarConditions output(String carCondition, String cleaningAgentResult) {
 
 Now update the service to use the workflow instead of calling agents directly.
 
-Update `src/main/java/com/carmanagement/service/CarManagementService.java`:
+Update `src/main/java/com/carmanagement/services/CarManagementService.java`:
 
-```java hl_lines="17-18 34-43" title="CarManagementService.java"
+```java hl_lines="26-27 44-60" title="CarManagementService.java"
 --8<-- "../../section-2/step-02/src/main/java/com/carmanagement/services/CarManagementService.java"
 ```
 
@@ -435,34 +476,34 @@ Update `src/main/java/com/carmanagement/service/CarManagementService.java`:
 CarProcessingWorkflow carProcessingWorkflow;
 ```
 
-The workflow interface is injected just like any other CDI bean.
-Quarkus LangChain4j generates the implementation automatically.
+The workflow interface is injected just like any other CDI bean. LangChain4j CDI generates the implementation
+automatically.
 
 ### 2: Workflow Invocation
 
 ```java
 CarConditions carConditions = carProcessingWorkflow.processCarReturn(
-                carInfo.make,
-                carInfo.model,
-                carInfo.year,
-                carNumber,
-                carInfo.condition,
-                rentalFeedback != null ? rentalFeedback : "",
-                cleaningFeedback != null ? cleaningFeedback : "");
+    carInfo.getMake(),
+    carInfo.getModel(),
+    carInfo.getYear(),
+    carNumber,
+    carInfo.getCondition(),
+    feedback
+);
 ```
 
-Instead of calling agents individually, we call the workflow.
-It returns a `CarConditions` object containing results from both agents.
+Instead of calling agents individually, we call the workflow. It returns a `CarConditions` object containing results
+from both agents.
 
 ### 3: Using the Results
 
 ```java
 // Update the car's condition with the result from CarConditionFeedbackAgent
-carInfo.condition = carConditions.generalCondition();
+carInfo.setCondition(carConditions.generalCondition());
 
 // If cleaning was not required, make the car available to rent
 if (!carConditions.cleaningRequired()) {
-  carInfo.status = CarStatus.AVAILABLE;            
+    carInfo.setStatus(CarStatus.AVAILABLE);
 }
 ```
 
@@ -476,15 +517,15 @@ Start the application:
 
 === "Linux / macOS"
     ```bash
-    ./mvnw quarkus:dev
+    ./mvnw liberty:dev
     ```
 
 === "Windows"
     ```cmd
-    mvnw quarkus:dev
+    mvnw liberty:dev
     ```
 
-Open your browser to [http://localhost:8080](http://localhost:8080){target="_blank"}.
+Open your browser to [http://localhost:9080](http://localhost:9080){target="_blank"}.
 
 ### Notice the New UI
 
@@ -600,7 +641,8 @@ The declarative API uses annotations to define workflows, making them:
 
 ### 1. Inspect the `AgenticScope`
 
-Try adding different types of feedback and observe how both agents respond. Notice how they're working with the same context!
+Try adding different types of feedback and observe how both agents respond. Notice how they're working with the same
+context!
 
 ### 2. Add More Input to the Condition Agent
 
@@ -626,22 +668,24 @@ How does the condition agent synthesize feedback from multiple sources?
 ## Understanding Parallel vs. Sequential
 
 !!! note "Why Sequential Instead of Parallel?"
-    You might notice that `CarConditionFeedbackAgent` doesn't actually use the output from `CleaningAgent`, it only looks at the original feedback.
-    This means these agents could run in **parallel** for better response time.
+    You might notice that `CarConditionFeedbackAgent` doesn't actually use the output from `CleaningAgent`, it only
+    looks at the original feedback. This means these agents could run in **parallel** for better response time.
 
     We chose a **sequential** workflow in this step because:
 
     1. It's simpler to understand as your first workflow
-    2. It sets us up for [Step 03](step-03.md){target="_blank"}, where we'll add more agents that **do** depend on each other
+    2. It sets us up for [Step 03](step-03.md){target="_blank"}, where we'll add more agents that **do** depend on each
+    other
 
-    Feel free to try converting this to a parallel workflow as an experiment! Replace `@SequenceAgent` with `@ParallelAgent` and see what happens.
+    Feel free to try converting this to a parallel workflow as an experiment! Replace `@RegisterSequenceAgent` with
+    `@RegisterParallelAgent` and see what happens.
 
 ---
 
 ## Troubleshooting
 
 ??? warning "Error: Cannot find symbol 'CarConditions'"
-    Make sure you created the `CarConditions.java` record in the `com.carmanagement.model` package.
+    Make sure you created the `CarConditions.java` record in the `com.carmanagement.models` package.
 
 ??? warning "Workflow not updating car condition"
     Check that:
@@ -659,7 +703,7 @@ How does the condition agent synthesize feedback from multiple sources?
 
 Before moving to the next step, let's clean up:
 
-1. **Stop the running server** by pressing `Ctrl+C` in the terminal where Quarkus is running
+1. **Stop the running server** by pressing `Ctrl+C` in the terminal where Liberty is running
 
 2. **Return to the root project directory**:
 
@@ -674,6 +718,7 @@ Before moving to the next step, let's clean up:
 You've successfully built your first multi-agent workflow!
 You learned how agents collaborate through `AgenticScope` and how sequential workflows coordinate their execution.
 
-In **Step 03**, you'll learn about **composing Multiple Agentic Workflows**, combining sequential, parallel, and conditional workflows to build sophisticated agent systems!
+In **Step 03**, you'll learn about **composing Multiple Agentic Workflows**, combining sequential, parallel, and
+conditional workflows to build sophisticated agent systems!
 
 [Continue to Step 03 - Composing Multiple Agentic Workflows](step-03.md)
