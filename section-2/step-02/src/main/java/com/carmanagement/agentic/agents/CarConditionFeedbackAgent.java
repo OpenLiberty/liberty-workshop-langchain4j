@@ -10,6 +10,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 /**
  * Agent that analyzes feedback to update the car condition.
  */
+// --8<-- [start:simple-agent]
 @RegisterSimpleAgent(
     name = "car-condition-feedback-agent",
     description = "Car condition analyzer. Determines the current condition of a car based on feedback.",
@@ -18,6 +19,7 @@ import jakarta.enterprise.context.ApplicationScoped;
     outputKey = "carCondition",
     scope = ApplicationScoped.class
 )
+// --8<-- [end:simple-agent]
 public interface CarConditionFeedbackAgent {
 
     @SystemMessage("""
