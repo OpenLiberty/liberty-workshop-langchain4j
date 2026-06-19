@@ -2,16 +2,19 @@
 
 ## Welcome to Section 2: Agentic Systems
 
-Congratulations on completing Section 1! You've learned how to build AI-infused applications with chatbots, RAG patterns, and function calling.
+Congratulations on completing Section 1! You've learned how to build AI-infused applications with chatbots, RAG
+patterns, and function calling.
 
-In **Section 2**, we're shifting gears to explore **agentic systems** — autonomous AI agents that can work together to solve complex, multi-step problems. Instead of a chatbot responding to user queries, you'll build agents that can make decisions, use tools, and collaborate in workflows.
+In **Section 2**, we're shifting gears to explore **agentic systems** — autonomous AI agents that can work together to
+solve complex, multi-step problems. Instead of a chatbot responding to user queries, you'll build agents that can make
+decisions, use tools, and collaborate in workflows.
 
 ### What You'll Learn
 
 In this section, you will:
 
 - Understand the difference between **AI Services** (Section 1) and **AI Agents** (Section 2)
-- Build your first autonomous agent using the `quarkus-langchain4j-agentic` module
+- Build your first autonomous agent using the `langchain4j-agentic` module
 - Learn how agents use tools (_function calling_) to take actions
 - See agents make decisions based on contextual information
 
@@ -19,8 +22,7 @@ In this section, you will:
 
 ## A New Scenario: Car Management System
 
-The **Miles of Smiles** car rental company needs help managing their fleet. 
-Here's the business process flow:
+The **Miles of Smiles** car rental company needs help managing their fleet. Here's the business process flow:
 
 1. **Rental Returns**: When customers return cars, the rental team records feedback about the car's condition.
 2. **Cleaning Requests**: Based on the feedback, the system should automatically decide if the car needs cleaning.
@@ -44,7 +46,8 @@ Before diving in, let's clarify some key differences:
 | **Annotation**  | Methods use `@SystemMessage` and `@UserMessage` | One method per interface (using `@Agent`)                                                                                                                                                                                        |
 | **Use Cases**   | Chatbots, Q&A, content generation               | Automation, decision-making, orchestration                                                                                                                                                                                       |
 
-In this section, you'll see how agents extend the capabilities you created in Section 1 to build sophisticated, intelligent, and autonomous systems.
+In this section, you'll see how agents extend the capabilities you created in Section 1 to build sophisticated,
+intelligent, and autonomous systems.
 
 ---
 
@@ -56,21 +59,40 @@ Before starting, ensure you have met the [workshop setup requirements](../requir
 
 ## Running the Application
 
+!!! important "Podman or Docker"
+    The application requires Podman or Docker to run a PostgreSQL database.
+    So make sure you have one of them installed and running.
+
+First, you need to run the database inside Docker or Podman. To start it, run one of the following commands, depending
+on the environment that you use:
+
+- Docker:
+
+    ```shell
+    docker run -d --name postgres -e POSTGRES_PASSWORD=password -p 5432:5432 pgvector/pgvector:pg17
+    ```
+
+- Podman:
+
+    ```shell
+    podman run -d --name postgres -e POSTGRES_PASSWORD=password -p 5432:5432 pgvector/pgvector:pg17
+    ```
+
 Navigate to the `section-2/step-01` directory and start the application:
 
 === "Linux / macOS"
     ```bash
     cd section-2/step-01
-    ./mvnw quarkus:dev
+    ./mvnw liberty:dev
     ```
 
 === "Windows"
     ```cmd
     cd section-2\step-01
-    mvnw quarkus:dev
+    mvnw liberty:dev
     ```
 
-Once started, open your browser to [http://localhost:8080](http://localhost:8080){target="_blank"}.
+Once started, open your browser to [http://localhost:9080](http://localhost:9080){target="_blank"}.
 
 ### Understanding the UI
 
@@ -89,7 +111,8 @@ Let's see the agent in action!
 
 ### Test 1: Car Needs Cleaning
 
-Act as a rental team member processing a car return. In the **Fleet Status** grid, find a rented car and enter this feedback in its **Action** column:
+Act as a rental team member processing a car return. In the **Fleet Status** grid, find a rented car and enter this
+feedback in its **Action** column:
 
 ```
 Car has dog hair all over the back seat
@@ -137,17 +160,13 @@ Notice how the agent **made a decision** without calling the cleaning tool. This
 
 ---
 
-## Building Agents with Quarkus LangChain4j
+## Building Agents with LangChain4j
 
-The [langchain4j-agentic](https://docs.langchain4j.dev/tutorials/agents){target="_blank"} module introduces the ability to create AI Agents.
-This module is available in Quarkus using the `quarkus-langchain4j-agentic` module.
-If you open the `pom.xml` file from the project, you will see this dependency:
+The [langchain4j-agentic](https://docs.langchain4j.dev/tutorials/agents){target="_blank"} module introduces the ability
+to create AI Agents. If you open the `pom.xml` file from the project, you will see this dependency:
 
-```xml
-<dependency>
-    <groupId>io.quarkiverse.langchain4j</groupId>
-    <artifactId>quarkus-langchain4j-agentic</artifactId>
-</dependency>
+```xml title="pom.xml"
+--8<-- "../../section-2/step-01/pom.xml:langchain4j-agentic"
 ```
 
 ### Key Concepts
@@ -158,12 +177,13 @@ Agents share similarities with AI Services from [Section 1](../section-1/step-01
 - Use `@SystemMessage` to define the agent's role and behavior
 - Use `@UserMessage` to provide request-specific context
 - Can be assigned **tools** to perform actions
-- Support both programmatic and declarative (annotation-based) definitions, even if in Quarkus, we recommend the declarative approach
+- Support both programmatic and declarative (annotation-based) definitions
 
 ### Key Differences
 
 - **Only one method** per interface can be annotated with `@Agent` - this is the agent entry point
-- Designed to be composed with **workflows** or be invoked by a supervisor — agents can be composed together (more on this in [Step 02](step-02.md){target="_blank"})
+- Designed to be composed with **workflows** or be invoked by a supervisor — agents can be composed together (more on
+  this in [Step 02](step-02.md){target="_blank"})
 - Focus on **autonomous actions** rather than conversational responses
 
 ---
@@ -187,13 +207,14 @@ Let's explore each component.
 
 The `CarManagementResource` provides REST APIs to handle car returns:
 
-```java hl_lines="19 22" title="CarManagementResource.java"
+```java hl_lines="22-25 28" title="CarManagementResource.java"
 --8<-- "../../section-2/step-01/src/main/java/com/carmanagement/resources/CarManagementResource.java:car-management"
 ```
 
 **Key Points:**
 
-- The `processReturn` method (endpoint `/car-management/return/{carNumber}`): Accepts feedback and routes it based on the car's current status
+- The `processReturn` method (endpoint `/api/car-management/return/{carNumber}`): Accepts feedback and routes it based
+  on the car's current status
 - Delegates to `CarManagementService.processCarReturn`
 
 ---
@@ -202,14 +223,16 @@ The `CarManagementResource` provides REST APIs to handle car returns:
 
 The `CarManagementService` orchestrates the car return process:
 
-```java hl_lines="1-2 13 19-24" title="CarManagementService.java"
+
+```java hl_lines="1-2 12 19-31" title="CarManagementService.java"
 --8<-- "../../section-2/step-01/src/main/java/com/carmanagement/services/CarManagementService.java:processCarReturn"
 ```
 
 **Key Points:**
 
 - The `CleaningAgent` field is injected as a CDI bean
-- In the `processCarReturn` method, the agent is invoked with car details and feedback. The response is checked for `CLEANING_NOT_REQUIRED`:
+- In the `processCarReturn` method, the agent is invoked with car details and feedback. The response is checked for
+  `CLEANING_NOT_REQUIRED`:
     * If found → Car marked as `AVAILABLE`
     * If not found → Car stays `AT_CLEANING` (tool was called)
 
@@ -221,30 +244,11 @@ This simple pattern allows you to ***integrate autonomous decision-making into y
 
 Here's where the magic happens — the AI agent definition:
 
-```java hl_lines="6-11 21-22" title="CleaningAgent.java"
+```java hl_lines="4-11 14-19" title="CleaningAgent.java"
 --8<-- "../../section-2/step-01/src/main/java/com/carmanagement/agentic/agents/CleaningAgent.java:cleaningAgent"
 ```
 
 **Let's break it down:**
-
-### Using Context Objects for Cleaner Parameters
-
-Notice how the agent method signature uses `CarInfo` for car details and a simple `String feedback` for the user's feedback:
-
-```java
-String processCleaning(CarInfo carInfo, Integer carNumber, String feedback)
-```
-
-This approach groups related car parameters into a cohesive `CarInfo` object, keeping the method signature clean and maintainable. The feedback is passed as a simple string — specialized agents will evaluate this string differently based on their role (e.g. a cleaning agent will look for clues that the car needs to be cleaned, while a maintenance agent will look for any signs that point to the car needing repairs).
-
-**Benefits of this pattern:**
-
-- **Reduced parameter count**: Instead of passing 6-8 individual parameters, we pass a few meaningful objects
-- **Better organization**: Related car data stays together in `CarInfo`
-- **Simplicity**: Feedback flows through the system as a plain string
-- **Type safety**: The compiler ensures you pass the right context objects
-
-This pattern becomes even more valuable as workflows grow more complex in later steps.
 
 ### `@SystemMessage`
 Defines the agent's **role** and **decision-making logic**:
@@ -265,22 +269,23 @@ Defines the agent's **role** and **decision-making logic**:
 ### `@UserMessage` 
 Provides **context** for each request using template variables:
 
-- Car details: `{carMake}`, `{carModel}`, `{carYear}`, `{carNumber}`
-- Feedback sources: `{rentalFeedback}`, `{cleaningFeedback}`
+- Car details: `{{carMake}}`, `{{carModel}}`, `{{carYear}}`, `{{carNumber}}`
+- Feedback sources: `{{rentalFeedback}}`, `{{cleaningFeedback}}`
 
 These variables are automatically populated from the method parameters.
 
-### `@Agent`
-Marks this as an **agent method** — only one per interface.
+### `@RegisterSimpleAgent`
+Marks this as an **simple agent**.
 
-- Provides a description: "Cleaning specialist. Determines what cleaning services are needed."
+- Provides a description: `Cleaning specialist. Determines what cleaning services are needed.`
 - This description can be used by other agents or systems to understand this agent's purpose
 
-### `@ToolBox`
-Assigns the `CleaningTool` to this agent:
+### `toolNames`
+Assigns the `CleaningTool` to this agent using the CDI bean name for the `CleaningTool` class:
 
 - The agent can call methods in this tool to perform actions
-- The LLM decides when and how to use the tool based on the task (function calling has been covered in Section 1 of the workshop)
+- The LLM decides when and how to use the tool based on the task (function calling has been covered in the Section 1 of
+  the workshop)
 
 ### Method Signature
 Defines the inputs and output:
@@ -300,16 +305,19 @@ Defines the inputs and output:
 
 ## Component 4: The CleaningTool
 
-If you went through Section 1, you'll remember that we already covered [tool and function calling](../section-1/step-07.md){target="_blank"} for single AI services.
-They work in pretty much the exact same way for Agents: Tools enable agents to call functions that can take action.
-These tools can be local LangChain4j tools running within the same Quarkus application, like in the following `CleaningTool` example, or remote, using the [MCP protocol we visited in Section 1, Step 8](../section-1/step-08.md){target="_blank"}..
+If you went through Section 1, you'll remember that we already covered
+[tool and function calling](../section-1/step-07.md){target="_blank"} for single AI services. They work in pretty much
+the exact same way for Agents: Tools enable agents to call functions that can take action. These tools can be local
+LangChain4j tools running within the same application, like in the following `CleaningTool` example, or remote, using
+the [MCP protocol we visited in Section 1, Step 8](../section-1/step-08.md){target="_blank"}..
 
-```java hl_lines="4 21 40 47-48" title="CleaningTool.java"
+```java hl_lines="4 5 27 51 67-68" title="CleaningTool.java"
 --8<-- "../../section-2/step-01/src/main/java/com/carmanagement/agentic/tools/CleaningTool.java:CleaningTool"
 ```
 
 **Key Points:**
 
+- `@Named` annotation defines the name of the CDI bean
 - `@Tool` annotation exposes this method to agents
     - The description helps the LLM understand when to use this tool
     - Parameters define what information the agent must provide
@@ -389,8 +397,8 @@ sequenceDiagram
 - **Agents are autonomous**: They make decisions and take actions based on context.
 - **Tools enable actions**: Agents use tools to interact with systems (databases, APIs, etc.)
 - **Clear prompts matter**: The `@SystemMessage` guides the agent's decision-making
-- **Type-safe interfaces**: No manual API calls — just define interfaces and let Quarkus LangChain4j handle the rest
-- **CDI integration**: Agents and tools are managed beans that integrate seamlessly with Quarkus
+- **Type-safe interfaces**: No manual API calls — just define interfaces and let LangChain4j handle the rest
+- **CDI integration**: Agents and tools are managed beans that integrate seamlessly with LangChain4j and LangChain4j CDI
 
 ---
 
@@ -450,21 +458,20 @@ Does the agent automatically learn to use it?
     Then restart the application.
 
 ??? warning "Tool methods not being called"
-   - Verify the tool uses `@Dependent` scope
-   - Check that the `@Tool` annotation is present
-   - Ensure the tool is properly referenced in `@ToolBox`
+    - Check that the `@Tool` annotation is present
+    - Ensure the tool is properly referenced by the `toolNames` attribute of the `@RegisterSimpleAgent` annotation
 
 ??? warning "Agent always/never calls the tool"
-   - Review your `@SystemMessage` — is it clear about when to use the tool?
-   - Try adding more explicit instructions
-   - Consider providing examples in the system message
+    - Review your `@SystemMessage` — is it clear about when to use the tool?
+    - Try adding more explicit instructions
+    - Consider providing examples in the system message
 
 ---
 ## Cleanup
 
 Before moving to the next step, let's clean up:
 
-1. **Stop the running server** by pressing `Ctrl+C` in the terminal where Quarkus is running
+1. **Stop the running server** by pressing `Ctrl+C` in the terminal where Liberty is running
 
 2. **Return to the root project directory**:
 
@@ -479,6 +486,7 @@ Before moving to the next step, let's clean up:
 
 In this step, you built a **single autonomous agent** that makes decisions and uses tools.
 
-In **Step 02**, you'll learn how to compose **multiple agents into workflows** — where agents collaborate to solve complex problems together!
+In **Step 02**, you'll learn how to compose **multiple agents into workflows** — where agents collaborate to solve
+complex problems together!
 
 [Continue to Step 02 - Composing Simple Agentic Workflows](step-02.md)
