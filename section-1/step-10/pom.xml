@@ -122,21 +122,26 @@
             <groupId>dev.langchain4j.cdi.mp</groupId>
             <artifactId>langchain4j-cdi-config</artifactId>
         </dependency>
+        <!-- -8<- [start:lc4j-cdi-telemetry]       -->
         <dependency>
             <groupId>dev.langchain4j.cdi.mp</groupId>
             <artifactId>langchain4j-cdi-telemetry</artifactId>
         </dependency>
+        <!-- -8<- [end:lc4j-cdi-telemetry]       -->
+        
+        <!-- -8<- [start:lc4j-cdi-ft]       -->
         <dependency>
             <groupId>dev.langchain4j.cdi.mp</groupId>
             <artifactId>langchain4j-cdi-fault-tolerance</artifactId>
         </dependency>
-
+        
         <!-- Smallrye Fault Tolerance -->
         <dependency>
             <groupId>io.smallrye</groupId>
             <artifactId>smallrye-fault-tolerance</artifactId>
             <version>6.11.1</version>
         </dependency>
+        <!-- -8<- [end:lc4j-cdi-ft]       -->
 
         <!-- Postgres -->
         <dependency>

@@ -208,18 +208,48 @@ LangChain4j application. You can use the OpenTelemetry API to send traces to a t
 [Jaeger](https://openliberty.io/guides/microprofile-telemetry-jaeger.html) or Tempo, which can then be used for
 monitoring and debugging purposes.
 
-### Enabling the mpTelemetry feature
+### OpenTelemetry
 
 [OpenTelemetry](https://opentelemetry.io/) is an open source framework that provides APIs, SDKs, and tools for
 generating and managing this data. MicroProfile Telemetry uses OpenTelemetry to enable both automatic and manual
 instrumentation in MicroProfile applications. Traces and metrics, along with runtime and application logs, can be
 exported in a standardized format through an OpenTelemetry Collector to any compatible backend.
 
-You can enable the `mpTelemetry` feature in the Liberty server by adding it to the list of features in the
-`src/main/liberty/config/server.xml` file:
+It provides a collector component that can receive telemetry data from your runtime and applications and export it to
+backend services of your choice for monitoring and analysis. By default, all OpenTelemetry data is exported by using the
+OpenTelemetry Protocol (OTLP). OTLP defines the encoding of telemetry data and the protocol that is used to exchange
+data between a client and server. Many backend services accept OTLP data without requiring conversion, but OpenTelemetry
+also provides a collection of service-specific exporters for popular open source and commercial services, such as
+Grafana and Prometheus. You can configure exporter settings by specifying system properties or environment variables.
+
+### Enabling the MicroProfile Telemetry feature
+
+OpenTelemetry is implemented in Liberty through the MicroProfile Telemetry (`mpTelemetry`) feature. When you enable
+the MicroProfile Telemetry feature 2.0 or later and specify the required configuration property, Liberty automatically
+collects and exports logs, traces, and metrics at the application or runtime level. For many common application
+scenarios, no changes are needed in your application code to collect this data.
+
+==You can enable the `mpTelemetry` feature in the Liberty server by adding it to the list of features in the
+`src/main/liberty/config/server.xml` file:==
 
 ```xml hl_lines="15" title="server.xml"
 --8<-- "../../section-1/step-10/src/main/liberty/config/server.xml:mpTelemetry"
+```
+
+You also need to specify the `otel.sdk.disabled=false` system property in one of the valid configuration sources.
+Depending on whether your runtime hosts a single application or multiple applications, you can specify this property at
+the runtime level or the application level. In most cases, runtime-level configuration is preferred because it includes
+both runtime-level telemetry and application-specific telemetry:
+
+- **Runtime level**: Collects and emits telemetry from both the runtime and the application.
+- **Application level**: Collects and emits telemetry for a single application and does not include runtime-level data.
+  Provides fine-grained control over data collection for each application.
+
+==You can enable OpenTelemetry at the runtime-level by adding the following to
+`src/main/liberty/config/bootstrap.properties` file:==
+
+```properties title="bootstrap.properties"
+--8<-- "../../section-1/step-10/src/main/liberty/config/bootstrap.properties:opentelemetry-config"
 ```
 
 ### Tools to visualize your collected observability data on your local machine
@@ -256,25 +286,30 @@ depending on the environment that you use:
     podman run -d --name otel-lgtm -p 3000:3000 -p 4317:4317 -p 4318:4318 --rm -ti grafana/otel-lgtm
     ```
 
-
 Now that the `Grafana Docker OpenTelemetry LGTM` container is running, you need to configure the `mpTelemetry` feature
-to forward traces, metrics and logs to it. ==In the `src/main/resources/META-INF/microprofile-config.properties` file,
-add the following configuration:==
+to forward traces, metrics and logs to it. ==First, we need to make the chat model listeners implemented in LangChain4j
+CDI avaivalbe to our AI server. Add the following dependency to the `pom.xml` file:==
+
+==First, we need to make the chat model listeners implemented in LangChain4j
+CDI avaivalbe to our AI server. Add the following dependency to the `pom.xml` file:==
+
+```properties title="pom.xml"
+--8<-- "../../section-1/step-10/pom.xml:lc4j-cdi-telemetry"
+```
+
+==Then, in the `src/main/resources/META-INF/microprofile-config.properties` file, add the following configuration:==
 
 ```properties title="microprofile-config.properties"
 --8<-- "../../section-1/step-10/src/main/resources/META-INF/microprofile-config.properties:opentelemetry-config"
 ```
 
-Let's look at the configuration:
-
-- `dev.langchain4j.cdi.plugin.customer-support-agent.config.listeners`: Specifies a list of listeners to associate with
-  the chat mode. Here, we are using the `MetricsChatModelListener` and `SpanChatModelListener` from LangChain4j CDI.
-- `otel.service.name`: The logical service name
-- `otel.sdk.disabled`: This must be set to `false` to enable OpenTelemetry
+The `dev.langchain4j.cdi.plugin.customer-support-agent.config.listeners` property specifies a list of listeners to
+associate with the chat model. Here, we are using the `MetricsChatModelListener` and `SpanChatModelListener` from
+LangChain4j CDI.
 
 !!! note "Default values"
     You might notice in the above example that a number of properties are commented out. They are currently set to the
-    default values, so there is not need to specify them explicitly here. However, in a production environment, you will
+    default values, so there is no need to specify them explicitly here. However, in a production environment, you will
     likely override these default values to point at your own backend.
 
 Now refresh the chatbot application in your browser and interact with the bot again to generate some new observability
@@ -334,41 +369,52 @@ wrong, we are able to handle it gracefully.
 
 Ultimately, calling an LLM is not much different than making traditional REST calls. If you're familiar with
 [MicroProfile](https://microprofile.io){target="_blank"}, you may know that it has a specification for how to implement
-Fault Tolerance. Quarkus implements this feature with the `quarkus-smallrye-fault-tolerance`
-extension. Go ahead and add it to your `pom.xml`:
-
-```xml title="pom.xml"
-        <!-- Fault Tolerance -->
-        <dependency>
-            <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-smallrye-fault-tolerance</artifactId>
-        </dependency>
-```
-
-The MicroProfile Fault Tolerance spec defines 3 main fault tolerance capabilities:
+Fault Tolerance. The MicroProfile Fault Tolerance spec defines 3 main fault tolerance capabilities:
 
 * **Timeout** - allows you to set a maximum time the call to the LLM should take before failing.
 * **Fallback** - allows you to call a fallback method in case there's an error
-* **Retry** - allows you to set how many times the call should be retried if there's an error, 
-and what delay there should be in between the calls
+* **Retry** - allows you to set how many times the call should be retried if there's an error, and what delay there
+  should be in between the calls
 
-Now all we have to do is annotate our `dev.langchain4j.workshop.CustomerSupportAgent` AI service with the following
-annotations:
+### Enabling the mpFaultTolerance feature
+
+Liberty provides support for Fault Tolerance in the `mpFaultTolerance` feature. ==You can enable the
+`mpFaultTolerance` feature in the Liberty server by adding it to the list of features in the
+`src/main/liberty/config/server.xml` file:==
+
+```xml hl_lines="13" title="server.xml"
+--8<-- "../../section-1/step-10/src/main/liberty/config/server.xml:mpTelemetry"
+```
+
+### Annotating the AI service
+
+Now all we have to do is annotate our `dev.langchain4j.workshop.CustomerSupportAgent` AI service witht the MP Fault
+Tolerance annotations. ==First, we need to make the fault tolerance annotations  avaivalbe to our AI server. Add the
+following dependency to the `pom.xml` file:==
+
+```properties title="pom.xml"
+--8<-- "../../section-1/step-10/pom.xml:lc4j-cdi-ft"
+```
+
+==Then, we can annotate our `dev.langchain4j.workshop.CustomerSupportAgent` AI service with the following annotations:==
 
 ```java hl_lines="15-17 44-64 67-72" title="CustomerSupportAgent.java"
 --8<-- "../../section-1/step-10/src/main/java/dev/langchain4j/workshop/CustomerSupportAgent.java"
 ```
 
-That's all. To test the implemented fault tolerance, we'll need to 'break' our application. You can either turn off
-your Wi-Fi, set the `@Timeout` value to something very low (e.g. 10), or you could set the inference server url to
-something that won't resolve, e.g. add the following property to your
-`src/main/resources/META-INF/microprofile-config.properties` file:
+### Testing fault tolerance
+
+To test the implemented fault tolerance, we'll need to 'break' our application. You can either turn off your Wi-Fi, set
+the `@Timeout` value to something very low (e.g. 10), or you could set the inference server url to something that won't
+resolve, e.g. add the following property to your `src/main/resources/META-INF/microprofile-config.properties` file:
 
 ```properties
 dev.langchain4j.cdi.plugin.customer-support-agent.config.base-url=https://api.example.com/v1/
 ```
 
-It's up to you to decide what your preferred way to create chaos is :).  Once you've done that, run your application and test it with different inputs. You should see that the fallback method is called when the LLM fails to produce a response within the specified timeout. This demonstrates the fault tolerance of our application.
+It's up to you to decide what your preferred way to create chaos is :).  Once you've done that, run your application and
+test it with different inputs. You should see that the fallback method is called when the LLM fails to produce a
+response within the specified timeout. This demonstrates the fault tolerance of our application.
 
 Don't forget to revert the change you just did!
 
@@ -376,10 +422,11 @@ Don't forget to revert the change you just did!
 
 ## Conclusion
 
-In this step, we introduced observability to retrieve useful information about the application's state, performance
-and behavior. This is a vital piece for a production-grade application, regardless of whether it's using AI or not.
-We also learned that Quarkus LangChain4j provides relatively straightforward ways to not only add observability
-to the application, but also to consult the data produces by it.
+In this step, we introduced observability to retrieve useful information about the application's state, performance and
+behavior. This is a vital piece for a production-grade application, regardless of whether it's using AI or not. We also
+learned that LangChain4j and LangChain4j CDI provide relatively straightforward ways to not only add observability to
+the application, but also to consult the data produced by it.
 
-We also introduced chaos engineering techniques to simulate failures in our application and observe how our 
-fallback mechanism responds. This is a crucial step for ensuring that our application can handle unexpected situations gracefully.
+We also introduced chaos engineering techniques to simulate failures in our application and observe how our  fallback
+mechanism responds. This is a crucial step for ensuring that our application can handle unexpected situations
+gracefully.

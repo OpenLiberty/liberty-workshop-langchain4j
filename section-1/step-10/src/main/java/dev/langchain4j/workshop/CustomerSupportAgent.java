@@ -43,7 +43,7 @@ public interface CustomerSupportAgent {
     )
     @Timeout(
         unit = ChronoUnit.SECONDS,
-        value = 1
+        value = 30
     )
     @Retry(
         abortOn = {
