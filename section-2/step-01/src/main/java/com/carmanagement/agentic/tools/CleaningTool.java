@@ -1,23 +1,24 @@
 package com.carmanagement.agentic.tools;
 
-import org.slf4j.Logger;
-
 import com.carmanagement.managers.CarInfoManager;
 import com.carmanagement.models.CarInfo;
 import com.carmanagement.models.CarStatus;
 
 import dev.langchain4j.agent.tool.Tool;
-import jakarta.enterprise.context.RequestScoped;
+
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.transaction.Transactional;
+
+import org.slf4j.Logger;
 
 // --8<-- [start:CleaningTool]
 /**
  * Tool for requesting cleaning operations.
  */
 @Named("cleaning-tool")
-@RequestScoped
+@ApplicationScoped
 public class CleaningTool {
     @Inject
     private Logger logger;

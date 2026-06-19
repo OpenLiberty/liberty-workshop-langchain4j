@@ -9,7 +9,7 @@ import dev.langchain4j.cdi.spi.RegisterSequenceAgent;
  * Workflow for processing car returns using a sequence of agents.
  */
 @RegisterSequenceAgent(
-    name = "car-processing-workflow-agent",
+    name = "car-processing-workflow",
     subAgentNames = {
         "cleaning-agent",
         "car-condition-feedback-agent"
