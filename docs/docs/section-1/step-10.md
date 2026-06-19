@@ -293,7 +293,7 @@ CDI avaivalbe to our AI server. Add the following dependency to the `pom.xml` fi
 ==First, we need to make the chat model listeners implemented in LangChain4j
 CDI avaivalbe to our AI server. Add the following dependency to the `pom.xml` file:==
 
-```properties title="pom.xml"
+```xml title="pom.xml"
 --8<-- "../../section-1/step-10/pom.xml:lc4j-cdi-telemetry"
 ```
 
@@ -392,7 +392,7 @@ Now all we have to do is annotate our `dev.langchain4j.workshop.CustomerSupportA
 Tolerance annotations. ==First, we need to make the fault tolerance annotations  avaivalbe to our AI server. Add the
 following dependency to the `pom.xml` file:==
 
-```properties title="pom.xml"
+```xml title="pom.xml"
 --8<-- "../../section-1/step-10/pom.xml:lc4j-cdi-ft"
 ```
 

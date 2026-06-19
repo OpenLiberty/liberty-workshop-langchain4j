@@ -21,10 +21,10 @@
         <liberty.tools.version>3.12.0</liberty.tools.version>
         <liberty.version>26.0.0.2</liberty.version>
 
-        <langchain4j.version>1.15.0</langchain4j.version>
-        <langchain4j.cdi.version>1.3.2</langchain4j.cdi.version>
+        <langchain4j.version>1.16.3</langchain4j.version>
+        <langchain4j.cdi.version>1.3.3</langchain4j.cdi.version>
 
-        <jakarta.version>11.0.0</jakarta.version>
+        <jakarta.version>10.0.0</jakarta.version>
 
         <postgresql.version>42.7.10</postgresql.version>
     </properties>
@@ -89,10 +89,12 @@
         </dependency>
 
         <!-- LangChain4j Agentic-->
+        <!-- -8<- [start:langchain4j-agentic]       -->
         <dependency>
             <groupId>dev.langchain4j</groupId>
             <artifactId>langchain4j-agentic</artifactId>
         </dependency>
+        <!-- -8<- [end:langchain4j-agentic]       -->
 
         <!-- LangChain4J CDI -->
         <dependency>

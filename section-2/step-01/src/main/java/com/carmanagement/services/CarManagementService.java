@@ -22,10 +22,10 @@ public class CarManagementService {
     @Inject
     private CarInfoManager carInfoManager;
 
+    // --8<-- [start:processCarReturn]
     @Inject
     private CleaningAgent cleaningAgent;
 
-    // --8<-- [start:processCarReturn]
     /**
      * Process a car return from any operation.
      *
