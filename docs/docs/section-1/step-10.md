@@ -208,18 +208,48 @@ LangChain4j application. You can use the OpenTelemetry API to send traces to a t
 [Jaeger](https://openliberty.io/guides/microprofile-telemetry-jaeger.html) or Tempo, which can then be used for
 monitoring and debugging purposes.
 
-### Enabling the mpTelemetry feature
+### OpenTelemetry
 
 [OpenTelemetry](https://opentelemetry.io/) is an open source framework that provides APIs, SDKs, and tools for
 generating and managing this data. MicroProfile Telemetry uses OpenTelemetry to enable both automatic and manual
 instrumentation in MicroProfile applications. Traces and metrics, along with runtime and application logs, can be
 exported in a standardized format through an OpenTelemetry Collector to any compatible backend.
 
-You can enable the `mpTelemetry` feature in the Liberty server by adding it to the list of features in the
-`src/main/liberty/config/server.xml` file:
+It provides a collector component that can receive telemetry data from your runtime and applications and export it to
+backend services of your choice for monitoring and analysis. By default, all OpenTelemetry data is exported by using the
+OpenTelemetry Protocol (OTLP). OTLP defines the encoding of telemetry data and the protocol that is used to exchange
+data between a client and server. Many backend services accept OTLP data without requiring conversion, but OpenTelemetry
+also provides a collection of service-specific exporters for popular open source and commercial services, such as
+Grafana and Prometheus. You can configure exporter settings by specifying system properties or environment variables.
+
+### Enabling the MicroProfile Telemetry feature
+
+OpenTelemetry is implemented in Liberty through the MicroProfile Telemetry (`mpTelemetry`) feature. When you enable
+the MicroProfile Telemetry feature 2.0 or later and specify the required configuration property, Liberty automatically
+collects and exports logs, traces, and metrics at the application or runtime level. For many common application
+scenarios, no changes are needed in your application code to collect this data.
+
+==You can enable the `mpTelemetry` feature in the Liberty server by adding it to the list of features in the
+`src/main/liberty/config/server.xml` file:==
 
 ```xml hl_lines="15" title="server.xml"
 --8<-- "../../section-1/step-10/src/main/liberty/config/server.xml:mpTelemetry"
+```
+
+You also need to specify the `otel.sdk.disabled=false` system property in one of the valid configuration sources.
+Depending on whether your runtime hosts a single application or multiple applications, you can specify this property at
+the runtime level or the application level. In most cases, runtime-level configuration is preferred because it includes
+both runtime-level telemetry and application-specific telemetry:
+
+- **Runtime level**: Collects and emits telemetry from both the runtime and the application.
+- **Application level**: Collects and emits telemetry for a single application and does not include runtime-level data.
+  Provides fine-grained control over data collection for each application.
+
+==You can enable OpenTelemetry at the runtime-level by adding the following to
+`src/main/liberty/config/bootstrap.properties` file:==
+
+```properties title="bootstrap.properties"
+--8<-- "../../section-1/step-10/src/main/liberty/config/bootstrap.properties:opentelemetry-config"
 ```
 
 ### Tools to visualize your collected observability data on your local machine
@@ -260,6 +290,9 @@ Now that the `Grafana Docker OpenTelemetry LGTM` container is running, you need 
 to forward traces, metrics and logs to it. ==First, we need to make the chat model listeners implemented in LangChain4j
 CDI avaivalbe to our AI server. Add the following dependency to the `pom.xml` file:==
 
+==First, we need to make the chat model listeners implemented in LangChain4j
+CDI avaivalbe to our AI server. Add the following dependency to the `pom.xml` file:==
+
 ```properties title="pom.xml"
 --8<-- "../../section-1/step-10/pom.xml:lc4j-cdi-telemetry"
 ```
@@ -270,16 +303,13 @@ CDI avaivalbe to our AI server. Add the following dependency to the `pom.xml` fi
 --8<-- "../../section-1/step-10/src/main/resources/META-INF/microprofile-config.properties:opentelemetry-config"
 ```
 
-Let's look at the configuration:
-
-- `dev.langchain4j.cdi.plugin.customer-support-agent.config.listeners`: Specifies a list of listeners to associate with
-  the chat mode. Here, we are using the `MetricsChatModelListener` and `SpanChatModelListener` from LangChain4j CDI.
-- `otel.service.name`: The logical service name
-- `otel.sdk.disabled`: This must be set to `false` to enable OpenTelemetry
+The `dev.langchain4j.cdi.plugin.customer-support-agent.config.listeners` property specifies a list of listeners to
+associate with the chat model. Here, we are using the `MetricsChatModelListener` and `SpanChatModelListener` from
+LangChain4j CDI.
 
 !!! note "Default values"
     You might notice in the above example that a number of properties are commented out. They are currently set to the
-    default values, so there is not need to specify them explicitly here. However, in a production environment, you will
+    default values, so there is no need to specify them explicitly here. However, in a production environment, you will
     likely override these default values to point at your own backend.
 
 Now refresh the chatbot application in your browser and interact with the bot again to generate some new observability
