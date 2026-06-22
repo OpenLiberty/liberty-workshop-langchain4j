@@ -1,20 +1,12 @@
 package com.carmanagement.agentic.workflows;
 
-import com.carmanagement.agentic.agents.FeedbackAnalysisAgent;
-import com.carmanagement.models.CarInfo;
 import com.carmanagement.models.FeedbackAnalysisResults;
-import com.carmanagement.models.FeedbackTask;
 
 import dev.langchain4j.agentic.declarative.Output;
-import dev.langchain4j.agentic.declarative.ParallelMapperAgent;
 import dev.langchain4j.agentic.scope.AgenticScope;
 import dev.langchain4j.cdi.spi.RegisterParallelMapperAgent;
 
 import java.util.List;
-import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Workflow for processing car feedback in parallel.

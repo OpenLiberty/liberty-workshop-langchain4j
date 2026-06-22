@@ -36,10 +36,12 @@ public class CarManagementResource {
     CarManagementService carManagementService;
 
     /**
-     * Process a car return.
+     * Process a car return from any status (rental, cleaning, or maintenance).
+     * This is a blocking operation due to AI agent processing.
      *
      * @param carNumber The car number
-     * @param feedback Optional feedback
+     * @param feedback Optional feedback about the return
+     * @param carImage Optional image of the car being returned (multipart form data)
      * @return Result of the processing
      */
     @POST
