@@ -47,7 +47,11 @@ public interface CarProcessingWorkflow extends MonitoredAgent {
 
         // CarConditionFeedbackAgent handles all logic for determining
         // the final car assignment and condition description.
-        logger.debug("CarConditions: {} → {} ", carConditions.generalCondition(), carConditions.carAssignment());
+        logger.debug("DEBUG CarConditions output method:");
+        logger.debug("  generalCondition: {}", carConditions.generalCondition());
+        logger.debug("  carAssignment: {}", carConditions.carAssignment());
+        logger.debug("  dispositionStatus: {}", carConditions.dispositionStatus());
+        logger.debug("  dispositionReason: {}", carConditions.dispositionReason());
         return carConditions;
     }
 }

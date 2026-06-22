@@ -1,5 +1,7 @@
 CREATE SEQUENCE IF NOT EXISTS car_info_id_seq;
 
+-- Drop the car_info table and recrete it
+DROP TABLE IF EXISTS car_info;
 CREATE TABLE IF NOT EXISTS car_info (
     id INT PRIMARY KEY DEFAULT nextval('car_info_id_seq'),
     make VARCHAR(255) NOT NULL,
@@ -34,7 +36,7 @@ VALUES (6, 'Toyota', 'Corolla', EXTRACT(YEAR FROM CURRENT_DATE) - 3, 'Like new, 
 ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO car_info (id, make, model, year, condition, status)
-VALUES (7, 'Honda', 'Civic', EXTRACT(YEAR FROM CURRENT_DATE) - 4, 'Good condition, minor wear and tear', 'RENTED')
+VALUES (7, 'Honda', 'Civic', EXTRACT(YEAR FROM CURRENT_DATE) - 3, 'Good condition, minor wear and tear', 'RENTED')
 ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO car_info (id, make, model, year, condition, status)
