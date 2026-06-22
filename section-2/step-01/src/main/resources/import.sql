@@ -1,5 +1,7 @@
 CREATE SEQUENCE IF NOT EXISTS car_info_id_seq;
 
+-- Drop the car_info table and recrete it
+DROP TABLE IF EXISTS car_info;
 CREATE TABLE IF NOT EXISTS car_info (
     id INT PRIMARY KEY DEFAULT nextval('car_info_id_seq'),
     make VARCHAR(255) NOT NULL,

@@ -46,7 +46,6 @@ public interface CarConditionFeedbackAgent {
         - Disposition: {{dispositionAnalysis}}
         - Maintenance: {{maintenanceAnalysis}}
         - Cleaning: {{cleaningAnalysis}}
-
     """)
     String analyzeForCondition(
         @V("carMake") String carMake,
