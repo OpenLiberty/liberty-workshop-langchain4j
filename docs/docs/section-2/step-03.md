@@ -647,11 +647,21 @@ Update `src/main/java/com/carmanagement/agentic/workflows/CarProcessingWorkflow.
 
 #### Update the Service Layer
 
-And finally, we'll update the Car Management service to handle the result from the Agentic AI workflow and update the
-system accordingly. Update `src/main/java/com/carmanagement/services/CarManagementService.java`:
+Now we'll update the Car Management service to handle the result from the Agentic AI workflow and update the system
+accordingly. Update `src/main/java/com/carmanagement/services/CarManagementService.java`:
 
 ```java title="CarManagementService.java"
 --8<-- "../../section-2/step-03/src/main/java/com/carmanagement/services/CarManagementService.java"
+```
+
+#### Update the microprofile-config.properties file
+
+And finally, we have implemented a number of new agents, each of which require their own memory instance. Modify the 
+`microprofile-config.properties` file in the `src/main/resources/META-INF/` directory to declaratively add memory
+instances for each of the new agents:
+
+```properties title="microprofile-config.properties"
+--8<-- "../../section-2/step-03/src/main/resources/META-INF/microprofile-config.properties:agent-memory"
 ```
 
 ### Test Your Implementation
