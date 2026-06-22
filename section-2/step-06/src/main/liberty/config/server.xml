@@ -40,12 +40,6 @@
         consoleLogLevel="INFO"
     />
 
-    <!-- Basic user registry -->
-    <basicRegistry id="basic" realm="BasicRealm">
-        <user name="admin" password="admin" />
-        <user name="user" password="user" />
-    </basicRegistry>
-
     <library id="postgresql-library">
         <fileset dir="${shared.resource.dir}" includes="*.jar" />
     </library>
@@ -53,13 +47,11 @@
     <dataSource id="default" jndiName="jdbc/postgresql">
         <jdbcDriver libraryRef="postgresql-library" />
         <properties.postgresql
-            serverName="${vector.store.hostname}"
-            portNumber="${vector.store.port}"
-            databaseName="${vector.store.database}"
-            user="${vector.store.username}"
-            password="${vector.store.password}"
+            serverName="${database.hostname}"
+            portNumber="${database.port}"
+            databaseName="${database.database}"
+            user="${database.username}"
+            password="${database.password}"
         />
     </dataSource>
-
-    <transaction totalTranLifetimeTimeout="360s"/>
 </server>
