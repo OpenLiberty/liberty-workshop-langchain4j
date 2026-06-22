@@ -609,7 +609,7 @@ Update `src/main/java/com/carmanagement/agentic/agents/CarConditionFeedbackAgent
 
 #### Create CarAssignment Model
 
-In `src/main/java/com/carmanagement/model`, create `CarAssignment.java`:
+In `src/main/java/com/carmanagement/models`, create `CarAssignment.java`:
 
 ```java title="CarAssignment.java"
 --8<-- "../../section-2/step-03/src/main/java/com/carmanagement/models/CarAssignment.java"

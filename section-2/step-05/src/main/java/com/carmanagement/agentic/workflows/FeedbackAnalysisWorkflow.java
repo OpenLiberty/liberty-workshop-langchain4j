@@ -7,6 +7,7 @@ import com.carmanagement.models.FeedbackTask;
 
 import dev.langchain4j.agentic.declarative.Output;
 import dev.langchain4j.agentic.declarative.ParallelMapperAgent;
+import dev.langchain4j.agentic.observability.MonitoredAgent;
 import dev.langchain4j.agentic.scope.AgenticScope;
 import dev.langchain4j.cdi.spi.RegisterParallelMapperAgent;
 
@@ -29,7 +30,7 @@ import org.slf4j.LoggerFactory;
     itemsKey = "tasks",
     outputKey = "feedbackAnalysisResults"
 )
-public interface FeedbackAnalysisWorkflow {
+public interface FeedbackAnalysisWorkflow extends MonitoredAgent {
 
     /**
      * Runs the feedback analysis agent in parallel for multiple tasks.
