@@ -1,6 +1,6 @@
-package com.carmanagement.agentic.agents;
+package com.carmanagement;
 
-import dev.langchain4j.cdi.spi.RegisterSimpleAgent;
+import dev.langchain4j.cdi.spi.RegisterAIService;
 import dev.langchain4j.service.SystemMessage;
 import dev.langchain4j.service.UserMessage;
 import dev.langchain4j.service.V;
@@ -11,12 +11,9 @@ import jakarta.enterprise.context.ApplicationScoped;
  * Agent that estimates the market value of a vehicle.
  * Used by the supervisor to make disposition decisions.
  */
-@RegisterSimpleAgent(
-    name = "pricing-agent",
-    description = "Pricing specialist that estimates vehicle market value based on make, model, year, and condition.",
+@RegisterAIService(
     chatModelName = "chat-model",
     chatMemoryName = "pricing-agent-memory",
-    outputKey = "carValue",
     scope = ApplicationScoped.class
 )
 public interface PricingAgent {

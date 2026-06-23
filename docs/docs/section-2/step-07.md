@@ -2,17 +2,22 @@
 
 ## New Requirement: Distributing the Pricing Service
 
-In the previous steps, you built a complete disposition system with the Supervisor Pattern (Step 4), Human-in-the-Loop approval (Step 5), and multimodal image analysis that enriches rental feedback with visual observations from car photos (Step 6). The system works well, but the Miles of Smiles management team has a new architectural requirement:
+In the previous steps, you built a complete disposition system with the Supervisor Pattern (Step 4), Human-in-the-Loop
+approval (Step 5), and multimodal image analysis that enriches rental feedback with visual observations from car photos
+(Step 6). The system works well, but the Miles of Smiles management team has a new architectural requirement:
 
 **The vehicle pricing logic needs to be maintained by a separate team and run as an independent service.**
 
 This is a common real-world scenario where:
 
-1. **Different teams own different capabilities**: The pricing team has specialized expertise in vehicle valuations and wants to maintain their own service
-2. **The service needs to be reusable**: Multiple client applications (not just car management) might need pricing estimates
+1. **Different teams own different capabilities**: The pricing team has specialized expertise in vehicle valuations and
+   wants to maintain their own service
+2. **The service needs to be reusable**: Multiple client applications (not just car management) might need pricing
+   estimates
 3. **Independent scaling is required**: The pricing service might need different resources than the main application
 
-You'll learn how to convert the local `PricingAgent` into a remote service using the [**Agent-to-Agent (A2A) protocol**](https://a2a-protocol.org/){target="_blank"}.
+You'll learn how to convert the local `PricingAgent` into a remote service using the 
+[**Agent-to-Agent (A2A) protocol**](https://a2a-protocol.org/){target="_blank"}.
 
 ---
 
@@ -20,25 +25,27 @@ You'll learn how to convert the local `PricingAgent` into a remote service using
 
 In this step, you will:
 
-- Understand the [**Agent-to-Agent (A2A) protocol**](https://a2a-protocol.org/){target="_blank"} for distributed agent communication
+- Understand the [**Agent-to-Agent (A2A) protocol**](https://a2a-protocol.org/){target="_blank"} for distributed agent
+  communication
 - **Convert** the local `PricingAgent` into a remote A2A service
-- Build a **client agent** that connects to remote A2A agents using `@A2AClientAgent`
+- Build a **client agent** that connects to remote A2A agents using `@RegisterA2AAgent`
 - Create an **A2A server** that exposes an AI agent as a remote service
-- Learn about **AgentCard**, **AgentExecutor**, and **TaskUpdater** components from the A2A SDK
+- Learn about **AgentCard** and **AgentExecutor** components from the A2A SDK
 - Understand the difference between **Tasks** and **Messages** in A2A protocol
-- Run **multiple Quarkus applications** that communicate via A2A
+- Run **multiple LangChain4j applications** that communicate via A2A
 - See the architectural trade-offs: lose Supervisor Pattern sophistication, gain distribution benefits
 
 !!!note
    
     At the moment the A2A integration is quite low-level and requires some boilerplate code.
-    The Quarkus LangChain4j team is working on higher-level abstractions to simplify A2A usage in future releases.
+    The LangChain4j team is working on higher-level abstractions to simplify A2A usage in future releases.
 
 ---
 
 ## Understanding the A2A Protocol
 
-The [**Agent-to-Agent (A2A) protocol**](https://a2a-protocol.org/){target="_blank"} is an open protocol for AI agents to communicate across different systems and platforms.
+The [**Agent-to-Agent (A2A) protocol**](https://a2a-protocol.org/){target="_blank"} is an open protocol for AI agents to
+communicate across different systems and platforms.
 
 ### Why A2A?
 
@@ -51,7 +58,7 @@ The [**Agent-to-Agent (A2A) protocol**](https://a2a-protocol.org/){target="_blan
 
 ```mermaid
 graph LR
-    subgraph "Quarkus Runtime 1: Car Management System"
+    subgraph "Liberty Runtime 1: Car Management System"
         W["CarProcessingWorkflow"]
         PA["PricingAgent<br/>@A2AClientAgent"]
         W --> PA
@@ -61,7 +68,7 @@ graph LR
         AP["JSON-RPC over HTTP"]
     end
 
-    subgraph "Quarkus Runtime 2: Pricing Service"
+    subgraph "Liberty Runtime 2: Pricing Service"
         AC["AgentCard<br/>Agent Metadata"]
         AE["AgentExecutor<br/>Request Handler"]
         PAI["PricingAgent<br/>AI Service"]
@@ -78,7 +85,7 @@ graph LR
 
 **The Flow:**
 
-1. **Client agent** (`PricingAgent` with `@A2AClientAgent`) sends a request to the remote agent
+1. **Client agent** (`PricingAgent` with `@RegisterA2AAgent`) sends a request to the remote agent
 2. **A2A Protocol Layer** ([JSON-RPC](https://www.jsonrpc.org/){target="_blank"}) transports the request over HTTP
 3. **AgentCard** describes the remote agent's capabilities (skills, inputs, outputs)
 4. **AgentExecutor** receives the request and orchestrates the execution
@@ -86,13 +93,15 @@ graph LR
 6. Response flows back through the same path
 
 !!!info "Additional A2A Info"
-    For more information about the A2A protocol and the actors involved, see the [A2A documentation](https://a2a-protocol.org/latest/topics/key-concepts/#core-actors-in-a2a-interactions){target="_blank"}. 
+    For more information about the A2A protocol and the actors involved, see the 
+    [A2A documentation](https://a2a-protocol.org/latest/topics/key-concepts/#core-actors-in-a2a-interactions){target="_blank"}. 
 
 ---
 
 ## Understanding Tasks vs. Messages
 
-The A2A protocol distinguishes between [two types of interactions](https://a2a-protocol.org/latest/topics/life-of-a-task/){target="_blank"}:
+The A2A protocol distinguishes between 
+[two types of interactions](https://a2a-protocol.org/latest/topics/life-of-a-task/){target="_blank"}:
 
 | Concept | Description | Use Case |
 |---------|-------------|----------|
@@ -111,7 +120,7 @@ sequenceDiagram
     participant AI as AI Agent
 
     Client->>Server: Create Task (POST /tasks)
-    Server->>Executor: Initialize TaskUpdater
+    Server->>Executor: Initialize task
     Executor->>AI: Execute with input
     AI->>AI: Process and use tools
     AI->>Executor: Return result
@@ -125,16 +134,17 @@ sequenceDiagram
 
 We'll convert Step 5's architecture to use a remote pricing agent:
 
-1. **Keep all HITL features**: DispositionProposalAgent, HumanApprovalAgent, value-based routing, approval workflow — all carried forward from Step 5
+1. **Keep all HITL features**: `DispositionProposalAgent`, `HumanApprovalAgent`, value-based routing, approval workflow
+   — all carried forward from Step 5
 2. **Keep DispositionAgent local**: Disposition logic stays in the main application (same as Step 5)
 3. **Convert PricingAgent to A2A Client**: Changes from local agent to remote A2A client
-4. **Create Remote A2A Server**: A separate Quarkus application exposing the pricing service
+4. **Create Remote A2A Server**: A separate LangChain4j application exposing the pricing service
 
 **The Complete Architecture:**
 
 ```mermaid
 graph TD
-    subgraph "Main Application (localhost:8080)"
+    subgraph "Main Application (localhost:9080)"
         R["Rental/Cleaning/Maintenance Returns"]
         FW["FeedbackAnalysisWorkflow<br/>Parallel Mapper"]
         FA["FeedbackAnalysisAgent"]
@@ -170,22 +180,23 @@ Before starting:
 - **Completed [Step 06](step-06.md){target="_blank"}** - This step directly builds on Step 6's architecture
 - Application from Step 06 is stopped (Ctrl+C)
 - Ports 8080 and 8888 are available (you'll run two applications simultaneously)
-- Understanding of Step 6's multimodal image analysis, Step 5's HITL Pattern, and Step 4's Supervisor Pattern (we keep the same patterns, just make PricingAgent remote)
+- Understanding of Step 6's multimodal image analysis, Step 5's HITL Pattern, and Step 4's Supervisor Pattern (we keep
+  the same patterns, just make PricingAgent remote)
 
 Before starting:
 
-- You have stopped (Ctrl+C) any running Quarkus instances
+- You have stopped (Ctrl+C) any running Liberty instances
 - You are in the root project directory (not a `step-XX` subdirectory)
 
 ---
 
 ## Understanding the Project Structure
 
-The Step 07 code includes **two separate Quarkus applications**:
+The Step 07 code includes **two separate applications**:
 
 ```
 section-2/step-07/
-├── multi-agent-system/          # Main car management application (port 8080)
+├── multi-agent-system/          # Main car management application (port 9080)
 │   ├── src/main/java/com/carmanagement/
 │   │   ├── agentic/
 │   │   │   ├── agents/
@@ -194,22 +205,26 @@ section-2/step-07/
 │   │   │   │   ├── DispositionProposalAgent.java  # Creates proposals
 │   │   │   │   ├── HumanApprovalAgent.java        # @HumanInTheLoop
 │   │   │   │   └── FeedbackAnalysisAgent.java     # Parameterized feedback analyzer
-│   │   │   └── workflow/
+│   │   │   └── workflows/
 │   │   │       ├── FeedbackAnalysisWorkflow.java  # Parallel mapper analysis
 │   │   │       └── CarProcessingWorkflow.java     # Main orchestrator
-│   │   ├── model/
+│   │   ├── models/
 │   │   │   └── ApprovalProposal.java              # Approval entity
-│   │   ├── resource/
+│   │   ├── resources/
 │   │   │   └── ApprovalResource.java              # Approval REST endpoints
-│   │   └── service/
+│   │   └── services/
 │   │       └── ApprovalService.java               # Manages HITL workflow 
 │   └── pom.xml
 │
 └── remote-a2a-agent/            # Remote pricing service (port 8888)
-    ├── src/main/java/com/demo/
-    │   ├── PricingAgentCard.java          # Describes agent capabilities
-    │   ├── PricingAgentExecutor.java      # Handles A2A requests
-    │   └── PricingAgent.java              # AI service for vehicle pricing
+    ├── src/main/java/com/carmanagement/
+    │   └── agentic/
+    │       ├── agents/
+    │       │   └── PricingAgent.java              # AI service for vehicle pricing
+    │       ├── cards/
+    │       │   └── PricingAgentCard.java          # Describes agent capabilities
+    │       └── executors/
+    │           └── PricingAgentExecutor.java      # Handles A2A requests
     └── pom.xml
 ```
 
@@ -222,14 +237,15 @@ section-2/step-07/
 ---
 
 !!! warning "Warning: this chapter involves many steps"
-    In order to build out the solution, you will need to go through quite a few steps.
-    While it is entirely possible to make the code changes manually (or via copy/paste),
-    we recommend starting fresh from Step 07 with the changes already applied.
-    You will then be able to walk through this chapter and focus on the examples and suggested experiments at the end of this chapter.
+    In order to build out the solution, you will need to go through quite a few steps. While it is entirely possible to
+    make the code changes manually (or via copy/paste), we recommend starting fresh from Step 07 with the changes
+    already applied. You will then be able to walk through this chapter and focus on the examples and suggested
+    experiments at the end of this chapter.
 
 === "Option 1: Continue from Step 06"
 
-    If you want to continue building on top of Step-06 code, you'll need to restructure the directory and copy updated files:
+    If you want to continue building on top of Step-06 code, you'll need to restructure the directory and copy updated
+    files:
     
     === "Linux / macOS"
         ```bash
@@ -237,12 +253,14 @@ section-2/step-07/
         mkdir -p multi-agent-system
         mv mvnw mvnw.cmd pom.xml src multi-agent-system/
         cp ../step-07/multi-agent-system/pom.xml ./multi-agent-system/pom.xml
-        mkdir -p remote-a2a-agent/src/main/java/com/demo
-        mkdir -p remote-a2a-agent/src/main/resources
+        mkdir -p remote-a2a-agent/src/main/java/com/carmanagement
+        mkdir -p remote-a2a-agent/src/main/liberty/config
+        mkdir -p remote-a2a-agent/src/main/resources/META-INF
         cp ../step-07/remote-a2a-agent/mvnw ./remote-a2a-agent/
         cp ../step-07/remote-a2a-agent/mvnw.cmd ./remote-a2a-agent/
         cp ../step-07/remote-a2a-agent/pom.xml ./remote-a2a-agent/
-        cp ../step-07/remote-a2a-agent/src/main/resources/application.properties ./remote-a2a-agent/src/main/resources/
+        cp ../step-07/remote-a2a-agent/src/main/liberty/config/server.xml ./remote-a2a-agent/src/main/liberty/config/
+        cp ../step-07/remote-a2a-agent/src/main/resources/META-INF/microprofile-config.properties ./remote-a2a-agent/src/main/resources/META-INF/
         ```
     
     === "Windows"
@@ -254,19 +272,25 @@ section-2/step-07/
         move pom.xml multi-agent-system\
         move src multi-agent-system\
         copy ..\step-07\multi-agent-system\pom.xml .\multi-agent-system\pom.xml
-        mkdir remote-a2a-agent\src\main\java\com\demo
-        mkdir remote-a2a-agent\src\main\resources
+        mkdir remote-a2a-agent\src\main\java\com\carmanagement
+        mkdir remote-a2a-agent\src\main\liberty\config
+        mkdir remote-a2a-agent\src\main\resources\META-INF
         copy ..\step-07\remote-a2a-agent\mvnw .\remote-a2a-agent\
         copy ..\step-07\remote-a2a-agent\mvnw.cmd .\remote-a2a-agent\
         copy ..\step-07\remote-a2a-agent\pom.xml .\remote-a2a-agent\
-        copy ..\step-07\remote-a2a-agent\src\main\resources\application.properties .\remote-a2a-agent\src\main\resources\
+        copy ..\step-07\remote-a2a-agent\src\main\liberty\config\server.xml .\remote-a2a-agent\src\main\liberty\config\
+        copy ..\step-07\remote-a2a-agent\src\main\resources\META-INF\microprofile-config.properties .\remote-a2a-agent\src\main\resources\META-INF\
         ```
     
-    **Note:** The `remote-a2a-agent` directory now contains the necessary infrastructure (pom.xml, mvnw, application.properties, and shared models). The `com/demo` directory is empty and ready for you to create the A2A agent files in Part 2. You'll update `PricingAgent.java` in the `multi-agent-system` in Part 1 below.
+    **Note:** The `remote-a2a-agent` directory now contains the necessary infrastructure (`pom.xml`, `mvnw`,
+    `server.xml`, and `microprofile-config.properties`). The `src/main/java/com/carmanagement` directory is empty and
+    ready for you to create the A2A agent files in Part 2. You'll update `PricingAgent.java` in the `multi-agent-system`
+    in Part 1 below.
 
 === "Option 2: Follow along using the completed solution [Recommended]"
 
-    If you prefer to follow along (without making any code changes), navigate to the completed `section-2/step-07/remote-a2a-agent` directory:
+    If you prefer to follow along (without making any code changes), navigate to the completed
+    `section-2/step-07/remote-a2a-agent` directory:
     
     === "Linux / macOS"
         ```bash
@@ -286,7 +310,9 @@ The only change needed in the main application is converting the `PricingAgent` 
 
 ### Step 1: Update the PricingAgent to A2A Client
 
-**This is the key change from Step 5!** The `PricingAgent` was a local agent with detailed pricing guidelines, depreciation tables, and an `@Output` post-processor. Now it becomes a simple client that delegates to the remote service.
+**This is the key change from Step 5!** The `PricingAgent` was a local agent with detailed pricing guidelines,
+depreciation tables, and an `@Output` post-processor. Now it becomes a simple client that delegates to the remote
+service.
 
 **Step 5 Version (Local):**
 
@@ -296,7 +322,7 @@ The only change needed in the main application is converting the `PricingAgent` 
 
 **Step 7 Version (A2A Client):**
 
-- Uses `@A2AClientAgent` to connect to remote service
+- Uses `@RegisterA2AAgent` to connect to remote service
 - Delegates all pricing logic to the remote service
 - No `@Output` method needed — the remote service handles formatting
 
@@ -308,10 +334,15 @@ Update `multi-agent-system/src/main/java/com/carmanagement/agentic/agents/Pricin
 
 **Let's break it down:**
 
-#### `@A2AClientAgent` Annotation
+#### `@RegisterA2AAgent` Annotation
 
 ```java
-@A2AClientAgent(a2aServerUrl = "http://localhost:8888")
+@RegisterA2AAgent(
+    name = "pricing-agent",
+    description = "Pricing specialist that estimates vehicle market value based on make, model, year, and condition.",
+    a2aServerUrl = "http://localhost:8888",
+    outputKey = "carValue"
+)
 ```
 
 This annotation transforms the method into an **A2A client**:
@@ -321,14 +352,21 @@ This annotation transforms the method into an **A2A client**:
 #### The Method Signature
 
 ```java
-String estimateValue(String carMake, String carModel, Integer carYear, String carCondition)
+String estimateValue(
+    String carMake,
+    String carModel,
+    Integer carYear,
+    String carCondition,
+    String feedback
+);
 ```
 
-These parameters are sent to the remote agent as task inputs. The parameters match exactly what the remote PricingAgent expects (same as Step 5's local version).
+These parameters are sent to the remote agent as task inputs. The parameters match exactly what the remote
+`PricingAgent` expects (same as Step 5's local version).
 
 #### How It Works
 
-1. When this method is called, Quarkus LangChain4j:
+1. When this method is called, LangChain4j/LangChain4j CDI:
     1. Creates an A2A Task with the method parameters as inputs
     2. Sends the task to the remote server via JSON-RPC
     3. Waits for the remote agent to complete the task
@@ -344,7 +382,7 @@ These parameters are sent to the remote agent as task inputs. The parameters mat
 
 Now let's build the remote pricing service that will handle A2A requests from the main application.
 
-Navigate to the remote-a2a-agent directory:
+Navigate to the `remote-a2a-agent` directory:
 
 ```bash
 cd remote-a2a-agent
@@ -354,17 +392,18 @@ cd remote-a2a-agent
 
 The AI agent that estimates vehicle market values — the same logic that was local in Step 5.
 
-In `src/main/java/com/demo`, create `PricingAgent.java`:
+In `src/main/java/com/carmanagement`, create `PricingAgent.java`:
 
 ```java title="PricingAgent.java"
---8<-- "../../section-2/step-07/remote-a2a-agent/src/main/java/com/carmanagement/agentic/agents/PricingAgent.java"
+--8<-- "../../section-2/step-07/remote-a2a-agent/src/main/java/com/carmanagement/PricingAgent.java"
 ```
 
 **Key Points:**
 
-- **`@RegisterAiService`**: Registers this as an AI service
-- **System message**: Identical to step-05's local PricingAgent — same pricing guidelines and depreciation tables
-- **Parameters**: `carMake`, `carModel`, `carYear`, `carCondition` — exactly matching the client's method signature
+- **`@RegisterAIService`**: Registers this as an AI service
+- **System message**: Identical to step-05's local `PricingAgent` — same pricing guidelines and depreciation tables
+- **Parameters**: `carMake`, `carModel`, `carYear`, `carCondition`, `feedback` — exactly matching the client's method
+  signature
 - **No tools needed**: Pricing is purely LLM-based, no tool invocation
 
 !!!note "AI Service vs. Agentic Agent"
@@ -375,10 +414,10 @@ In `src/main/java/com/demo`, create `PricingAgent.java`:
 
 The **AgentCard** describes the agent's capabilities, skills, and interface.
 
-In `src/main/java/com/demo`, create `PricingAgentCard.java`:
+In `src/main/java/com/carmanagement`, create `PricingAgentCard.java`:
 
 ```java title="PricingAgentCard.java"
---8<-- "../../section-2/step-07/remote-a2a-agent/src/main/java/com/carmanagement/agentic/cards/PricingAgentCard.java"
+--8<-- "../../section-2/step-07/remote-a2a-agent/src/main/java/com/carmanagement/PricingAgentCard.java"
 ```
 
 **Let's break it down:**
@@ -388,11 +427,13 @@ In `src/main/java/com/demo`, create `PricingAgentCard.java`:
 ```java
 @Produces
 @PublicAgentCard
-public AgentCard agentCard();
+public AgentCard agentCard() {
+    ...
+}
 ```
 
-This makes the AgentCard available at the `/.well-known/agent-card.json` endpoint. 
-Clients can query this endpoint to discover the agent's capabilities.
+This makes the `AgentCard` available at the `/.well-known/agent-card.json` endpoint. Clients can query this endpoint to
+discover the agent's capabilities.
 
 #### AgentCard Components
 
@@ -400,27 +441,28 @@ Clients can query this endpoint to discover the agent's capabilities.
 ```java
 .name("Pricing Agent")
 .description("Estimates the market value of a vehicle based on make, model, year, and condition.")
-.url("http://localhost:8888/")
 .version("1.0.0")
 ```
 
 **Capabilities:**
 ```java
-.capabilities(new AgentCapabilities.Builder()
-        .streaming(true)
-        .pushNotifications(false)
-        .stateTransitionHistory(false)
-        .build())
+.capabilities(AgentCapabilities.builder()
+    .streaming(true)
+    .pushNotifications(false)
+    .build()
+)
 ```
 
 **Skills:**
 ```java
-.skills(List.of(new AgentSkill.Builder()
-    .id("pricing")
-    .name("Vehicle pricing")
-    .description("Estimates the market value of a vehicle based on make, model, year, and condition")
-    .tags(List.of("pricing", "valuation"))
-    .build()))
+.skills(List.of(
+    AgentSkill.builder()
+        .id("pricing")
+        .name("Vehicle pricing")
+        .description("Estimates the market value of a vehicle based on make, model, year, and condition")
+        .tags(List.of("pricing", "valuation"))
+        .build()
+))
 ```
 
 Skills describe what the agent can do. This helps clients discover appropriate agents for their needs.
@@ -428,20 +470,21 @@ Skills describe what the agent can do. This helps clients discover appropriate a
 **Transport Protocol:**
 ```java
 .preferredTransport(TransportProtocol.JSONRPC.asString())
-.additionalInterfaces(List.of(
-        new AgentInterface(TransportProtocol.JSONRPC.asString(), "http://localhost:8888")))
+.supportedInterfaces(List.of(
+    new AgentInterface(TransportProtocol.JSONRPC.asString(), "http://localhost:8888")
+))
 ```
 
-Specifies that this agent communicates via JSON-RPC over HTTP.
+Specifies that this agent communicates via JSON-RPC over HTTP and the endpoint URL for the agent.
 
 ### Step 4: Create the AgentExecutor
 
 The **AgentExecutor** handles incoming A2A requests and orchestrates the AI agent.
 
-In `src/main/java/com/demo`, create `PricingAgentExecutor.java`:
+In `src/main/java/com/carmanagement`, create `PricingAgentExecutor.java`:
 
 ```java title="PricingAgentExecutor.java"
---8<-- "../../section-2/step-07/remote-a2a-agent/src/main/java/com/carmanagement/agentic/executors/PricingAgentExecutor.java"
+--8<-- "../../section-2/step-07/remote-a2a-agent/src/main/java/com/carmanagement/PricingAgentExecutor.java"
 ```
 
 **Let's break it down:**
@@ -451,11 +494,16 @@ In `src/main/java/com/demo`, create `PricingAgentExecutor.java`:
 ```java
 @ApplicationScoped
 public class PricingAgentExecutor {
+    ...
+
     @Produces
-    public AgentExecutor agentExecutor(PricingAgent pricingAgent)
+    public AgentExecutor agentExecutor(PricingAgent pricingAgent) {
+        ...
+    }
+}
 ```
 
-Produces an `AgentExecutor` bean that Quarkus LangChain4j will use to handle A2A task requests.
+Produces an `AgentExecutor` bean that LangChain4j will use to handle A2A task requests.
 
 #### Task Processing
 
@@ -463,10 +511,12 @@ The executor extracts the input parameters from the incoming message and calls t
 
 ```java
 String agentResponse = pricingAgent.estimateValue(
-        inputs.get(0),                      // carMake
-        inputs.get(1),                      // carModel
-        Integer.parseInt(inputs.get(2)),    // carYear
-        inputs.get(3));                     // carCondition
+    inputs.get(0),                      // carMake
+    inputs.get(1),                      // carModel
+    Integer.parseInt(inputs.get(2)),    // carYear
+    inputs.get(3),                      // carCondition
+    inputs.get(4)                       // feedback
+);
 ```
 
 Extracts each parameter by index from the message parts. The order matches the client's method signature exactly.
@@ -476,11 +526,12 @@ Extracts each parameter by index from the message parts. The order matches the c
 ```java
 TextPart responsePart = new TextPart(agentResponse, null);
 List<Part<?>> parts = List.of(responsePart);
-updater.addArtifact(parts, null, null, null);
-updater.complete();
+agentEmitter.addArtifact(parts);
+agentEmitter.complete();
 ```
 
-Creates a text part with the agent's response and sends it back to the client via the `TaskUpdater`. This completes the A2A task.
+Creates a text part with the agent's response and sends it back to the client via the `AgentEmitter`. This completes the
+A2A task.
 
 ---
 
@@ -493,48 +544,86 @@ You'll need to run **two applications simultaneously**.
 === "Linux / macOS"
     ```bash
     cd remote-a2a-agent
-    ./mvnw quarkus:dev
+    ./mvnw liberty:dev
     ```
 
 === "Windows"
     ```cmd
     cd remote-a2a-agent
-    mvnw quarkus:dev
+    mvnw liberty:dev
     ```
 
 Wait for:
-```
-Listening on: http://localhost:8888
+
+```bash
+[INFO] ************************************************************************
+[INFO] *    Liberty is running in dev mode.
+[INFO] *        Automatic generation of features: [ Off ]
+[INFO] *        h - see the help menu for available actions, type 'h' and press Enter.
+[INFO] *        q - stop the server and quit dev mode, press Ctrl-C or type 'q' and press Enter.
+[INFO] *    Liberty server port information:
+[INFO] *        Liberty server HTTP port: [ 8888 ]
+[INFO] *        Liberty server HTTPS port: [ 9443 ]
+[INFO] *        Liberty debug port: [ 7777 ]
+[INFO] ************************************************************************
 ```
 
 The remote service is now running and ready to accept A2A requests for pricing!
 
-### Terminal 2: Start the Main Application
+### Start the database container
 
-Open a **new terminal** and run:
+!!! important "Podman or Docker"
+    The application requires Podman or Docker to run a PostgreSQL database.
+    So make sure you have one of them installed and running.
+
+You need to run the database inside Docker or Podman. To start it, Open a **new terminal** and run one of the following
+commands, depending on the environment that you use:
+
+- Docker:
+
+    ```shell
+    docker run -d --name postgres -e POSTGRES_PASSWORD=password -p 5432:5432 pgvector/pgvector:pg17
+    ```
+
+- Podman:
+
+    ```shell
+    podman run -d --name postgres -e POSTGRES_PASSWORD=password -p 5432:5432 pgvector/pgvector:pg17
+    ```
+
+### Terminal 2: Start the Main Application
 
 === "Linux / macOS"
     ```bash
     cd multi-agent-system
-    ./mvnw quarkus:dev
+    ./mvnw liberty:dev
     ```
 
 === "Windows"
     ```cmd
     cd multi-agent-system
-    mvnw quarkus:dev
+    mvnw liberty:dev
     ```
 
 Wait for:
-```
-Listening on: http://localhost:8080
+```bash
+[INFO] ************************************************************************
+[INFO] *    Liberty is running in dev mode.
+[INFO] *        Automatic generation of features: [ Off ]
+[INFO] *        h - see the help menu for available actions, type 'h' and press Enter.
+[INFO] *        q - stop the server and quit dev mode, press Ctrl-C or type 'q' and press Enter.
+[INFO] *    Liberty server port information:
+[INFO] *        Liberty server HTTP port: [ 9080 ]
+[INFO] *        Liberty debug port: [ 58576 ]
+[INFO] ************************************************************************
 ```
 
 ### Test the Complete Flow
 
-Open your browser to [http://localhost:8080](http://localhost:8080){target=_blank}.
+Open your browser to [http://localhost:9080](http://localhost:9080){target=_blank}.
 
-You'll see the Fleet Status grid with inline feedback forms in the Action column and the approval notification button.
+You'll see the **Fleet Status** grid with inline feedback forms in the **Action** column and the approval notification
+button.
 
 ![Fleet Status Grid](../images/agentic-UI-maintenance-returns-2.png){: .center}
 
@@ -549,9 +638,9 @@ Click **Return**.
 **What happens?**
 
 1. **Parallel Analysis** (`FeedbackAnalysisWorkflow`):
-    1. `FeedbackTask.disposition()` executed by `FeedbackAnalysisAgent`: "Disposition required — severe damage"
-    2. `FeedbackTask.maintenance()` executed by `FeedbackAnalysisAgent`: "Major repairs needed"
-    3. `FeedbackTask.cleaning()` executed by `FeedbackAnalysisAgent`: "Not applicable"
+    1. `FeedbackTask::disposition()` executed by `FeedbackAnalysisAgent`: "Disposition required — severe damage"
+    2. `FeedbackTask::maintenance()` executed by `FeedbackAnalysisAgent`: "Major repairs needed"
+    3. `FeedbackTask::cleaning()` executed by `FeedbackAnalysisAgent`: "Not applicable"
 
 2. **Supervisor Orchestration** (FleetSupervisorAgent):
     1. Analyzes feedback and determines disposition is required
@@ -574,21 +663,59 @@ Click **Return**.
 ### Check the Logs
 
 **Terminal 1 (Remote A2A Server):**
-```
+```shell
 Remote A2A PricingAgent called
 ```
 
 **Terminal 2 (Main Application):**
-```
-[FeedbackAnalysisAgent/disposition] DISPOSITION_REQUIRED - Severe structural damage, uneconomical to repair
-[FleetSupervisorAgent] Invoking PricingAgent for value estimation
-[PricingAgent @A2AClientAgent] Sending task to http://localhost:8888
-[PricingAgent @A2AClientAgent] Received result: Estimated Value: $12,500
-[FleetSupervisorAgent] Invoking DispositionAgent
-[DispositionAgent] Result: Car should be scrapped...
+```shell
+[INFO] ... CarManagementResource -- Processing rental return for car 3 with feedback: looks like this car hit a tree and is damaged beyond repair
+[INFO] ... CarManagementResource -- No image provided
+[INFO] ... AgentExecutor -- Skipping optional agent 'car-image-analysis-agent' because of missing argument 'carImage'
+[INFO] ... SupervisorPlanner -- Agent Invocation: AgentInvocation{agentName='pricing-agent$0', arguments={carMake=Audi, carModel=Q4, carYear=2025, carCondition=Brake pads recently replaced, feedback=looks like this car hit a tree and is damaged beyond repair}}
+[INFO] ... DefaultA2AClientBuilder -- Response: Estimated Value: $42,240  
+[INFO] Justification: The 2025 Audi Q4 is a luxury model with an estimated new‑car base value of about $60,000. At 1 year old it has suffered a 12 % depreciation, reducing it to $52,800. The feedback indicates severe, tree‑impact damage, which we treat as “poor” condition and apply a further 20 % reduction, resulting in an estimated market value of roughly $42,240.
+[INFO] ... SupervisorPlanner -- Agent Invocation: AgentInvocation{agentName='disposition-proposal-agent$1', arguments={carMake=Audi, carModel=Q4, carYear=2025, carNumber=3, carCondition=Brake pads recently replaced, carValue=$42,240, feedback=looks like this car hit a tree and is damaged beyond repair}}
+[INFO] ... SupervisorPlanner -- Agent Invocation: AgentInvocation{agentName='human-approval-agent$2', arguments={}}
+[INFO] ... HumanApprovalAgent -- 🛑 HITL Tool: Creating approval proposal for car 3 - 2025 Audi Q4
+[INFO] ... HumanApprovalAgent -- ⏸️  WORKFLOW PAUSED - Waiting for human approval decision via UI
+[INFO] ... ApprovalProposalManager -- No approval proposal found for car number 3
+[INFO] ... ApprovalService -- Created approval proposal ID=151 for car 3 - 2025 Audi Q4 (Value: $42,240, Proposed: SCRAP)
+[INFO] ... ApprovalService -- ⏸️  WORKFLOW PAUSED - Waiting for human approval decision
+[INFO] ... ApprovalService -- Proposal persisted with ID: 151, status: PENDING
+[INFO] ... ApprovalService -- ✅ Proposal creation transaction committed - now visible to queries
+[INFO] ... ApprovalResource -- Decision 'DISPOSE_CAR' received for proposal 151 by Workshop User
+[INFO] ... ApprovalProposalManager -- Updating approval proposal: com.carmanagement.models.ApprovalProposal@233d2152
+[INFO] ... ApprovalService -- Human decision received for car 3: APPROVED - DISPOSE_CAR: Dispose decision by human reviewer
+[INFO] ... ApprovalService -- ▶️  WORKFLOW RESUMED - Continuing with approval decision
+[INFO] ... HumanApprovalAgent -- ▶️  WORKFLOW RESUMED - Human decision received: APPROVED
+[INFO] ... HumanApprovalAgent -- Response: Human Decision: APPROVED
+[INFO] Reason: DISPOSE_CAR: Dispose decision by human reviewer
+[INFO] Approved By: Workshop User
+[INFO] Decision Time: 2026-06-23T11:42:39.411116
+[INFO] ... SupervisorPlanner -- Agent Invocation: AgentInvocation{agentName='done', arguments={response=DISPOSE_CAR}}
+[INFO] ... CarProcessingWorkflow -- DEBUG CarConditions output method:
+[INFO] ... CarProcessingWorkflow --   generalCondition: Dispose the vehicle because a tree collision caused extensive damage beyond repair.
+[INFO] ... CarProcessingWorkflow --   carAssignment: DISPOSITION
+[INFO] ... CarProcessingWorkflow --   dispositionStatus: null
+[INFO] ... CarProcessingWorkflow --   dispositionReason: null
+[INFO] ... CarManagementService -- CarConditionFeedbackAgent updating...
+[INFO] ... CarManagementService -- Car marked for disposition - awaiting final decision
+[INFO] ... CarInfoManager -- Updating car info: CarInfo {  id=3,
+[INFO]   make=Audi,
+[INFO]   model=Q4,
+[INFO]   year=2025,
+[INFO]   condition=Dispose the vehicle because a tree collision caused extensive damage beyond repair.,
+[INFO]   status=pending disposition
+[INFO] }
 ```
 
 Notice the **cross-application communication** via A2A!
+```shell
+[INFO] ... SupervisorPlanner -- Agent Invocation: AgentInvocation{agentName='pricing-agent$0', arguments={carMake=Audi, carModel=Q4, carYear=2025, carCondition=Brake pads recently replaced, feedback=looks like this car hit a tree and is damaged beyond repair}}
+[INFO] ... DefaultA2AClientBuilder -- Response: Estimated Value: $42,240  
+[INFO] Justification: The 2025 Audi Q4 is a luxury model with an estimated new‑car base value of about $60,000. At 1 year old it has suffered a 12 % depreciation, reducing it to $52,800. The feedback indicates severe, tree‑impact damage, which we treat as “poor” condition and apply a further 20 % reduction, resulting in an estimated market value of roughly $42,240.
+```
 
 ---
 
@@ -656,11 +783,11 @@ sequenceDiagram
 The A2A client agent is remarkably simple:
 
 ```java
-@A2AClientAgent(a2aServerUrl = "http://localhost:8888", ...)
+@RegisterA2AAgent(a2aServerUrl = "http://localhost:8888", ...)
 String estimateValue(...)      // PricingAgent
 ```
 
-Quarkus LangChain4j handles:
+LangChain4j/LangChain4j CDI handles:
 
 - Creating the A2A task
 - Serializing method parameters as task inputs
@@ -677,7 +804,7 @@ The server requires more components:
 |-----------|---------|
 | **AgentCard** | Describes agent capabilities, published at `/.well-known/agent-card.json` endpoint |
 | **AgentExecutor** | Receives and processes A2A task requests |
-| **TaskUpdater** | Updates task status and sends results back to client |
+| **AgentEmitter** | Manages task lifecycle and sends results back to client |
 | **AI Agent** | The actual AI service (PricingAgent) |
 
 This separation allows:
@@ -690,15 +817,17 @@ This separation allows:
 ## Key Takeaways
 
 - **A2A enables distributed agents**: Different teams can maintain specialized agents in separate systems
-- **`@A2AClientAgent` is powerful**: Simple annotation transforms a method into an A2A client
+- **`@RegisterA2AAgent` is powerful**: Simple annotation transforms a method into an A2A client
 - **AgentCard describes capabilities**: Clients can discover what remote agents can do
 - **AgentExecutor handles protocol**: Separates A2A infrastructure from agent logic
 - **Tasks vs. Messages**: A2A supports both task-based and conversational interactions
 - **Type-safe integration**: Method parameters automatically become task inputs
 - **Remote agents integrate seamlessly**: Works with existing workflows and local agents
 - **Two runtimes communicate**: Real-world simulation of distributed agent systems
-- **Selective distribution**: Not every agent needs to be remote — only distribute what benefits from it (e.g., the pricing service can be reused by other applications)
-- **Local + remote mix**: Combining local agents (DispositionAgent) with remote A2A agents (PricingAgent) in the same workflow
+- **Selective distribution**: Not every agent needs to be remote — only distribute what benefits from it (e.g., the
+  pricing service can be reused by other applications)
+- **Local + remote mix**: Combining local agents (`DispositionAgent`) with remote A2A agents (`PricingAgent`) in the
+  same workflow
 
 ---
 
@@ -706,7 +835,7 @@ This separation allows:
 
 ### 1. Add Agent Discovery
 
-The AgentCard is published at `http://localhost:8888/.well-known/agent-card.json`. Try:
+The `AgentCard` is published at `http://localhost:8888/.well-known/agent-card.json`. Try:
 
 ```bash
 curl http://localhost:8888/.well-known/agent-card.json | jq
@@ -745,17 +874,6 @@ What other specialized agents could be useful?
 
 Try creating a simple A2A server for one of these!
 
-### 4. Monitor A2A Communication
-
-Add logging to see the JSON-RPC messages:
-
-```properties
-# In application.properties
-quarkus.log.category."io.a2a".level=DEBUG
-```
-
-This shows the raw A2A protocol messages.
-
 ---
 
 ## Troubleshooting
@@ -766,20 +884,26 @@ This shows the raw A2A protocol messages.
     Listening on: http://localhost:8888
     ```
 
-    If you see "Port already in use", another application is using port 8888. You can change it in `remote-a2a-agent/src/main/resources/application.properties`:
-    ```properties
-    quarkus.http.port=8889
+    If you see "Port already in use", another application is using port 8888. You can change it in
+    `remote-a2a-agent/src/main/liberty/config/server.xml`:
+    ```xml
+    <httpEndpoint
+        id="defaultHttpEndpoint"
+        httpPort="8889"
+        host="*"
+    />
     ```
 
     Then update the client's `a2aServerUrl` accordingly.
 
 ??? warning "Task execution timeout"
-    If the remote agent takes too long to respond, you might see a timeout error. The default timeout is sufficient for most cases, but you can increase it if needed by configuring the A2A client.
+    If the remote agent takes too long to respond, you might see a timeout error. The default timeout is sufficient for
+    most cases, but you can increase it if needed by configuring the A2A client.
 
 ??? warning "Parameter mismatch errors"
     If you see errors about missing parameters, verify that:
 
-    - Client agent method parameter names match what AgentExecutor extracts
+    - Client agent method parameter names match what `AgentExecutor` extracts
     - The text parts are extracted in the correct order in the `AgentExecutor`
     - All required parameters are being sent by the client
 
@@ -809,10 +933,10 @@ You've successfully distributed the pricing service as a remote A2A agent while 
 You learned how to:
 
 - Convert local agents to remote A2A services
-- Connect to remote agents using `@A2AClientAgent`
-- Build A2A servers with AgentCard and AgentExecutor
+- Connect to remote agents using `@RegisterA2AAgent`
+- Build A2A servers with `AgentCard` and `AgentExecutor`
 - Integrate remote agents into complex workflows
-- Run multiple Quarkus applications that communicate via A2A
+- Run multiple LangChain4j applications that communicate via A2A
 - Understand the architectural trade-offs between local and distributed agents
 
 **Key Progression:**
@@ -821,7 +945,8 @@ You learned how to:
 - **Step 6**: Multimodal image analysis for enriched feedback
 - **Step 7**: Distributed architecture with A2A protocol
 
-Congratulations on completing the final step of Section 2! Ready to wrap up? Head to the conclusion to review everything you've learned and see how these patterns apply to real-world scenarios!
+Congratulations on completing the final step of Section 2! Ready to wrap up? Head to the conclusion to review everything
+you've learned and see how these patterns apply to real-world scenarios!
 
 [Continue to Conclusion - Mastering Agentic Systems](conclusion.md)
 
@@ -830,5 +955,5 @@ Congratulations on completing the final step of Section 2! Ready to wrap up? Hea
 ## Additional Resources
 
 - [A2A Protocol Specification](https://a2a.dev)
-- [Quarkus LangChain4j Documentation](https://docs.quarkiverse.io/quarkus-langchain4j/dev/)
-- [Quarkus LangChain4j Agentic Module](https://docs.quarkiverse.io/quarkus-langchain4j/dev/agentic.html)
+- [LangChain4j Documentation](https://docs.langchain4j.dev/intro/)
+- [LangChain4j Agents and Agentic AI Documentation](https://docs.langchain4j.dev/tutorials/agents)

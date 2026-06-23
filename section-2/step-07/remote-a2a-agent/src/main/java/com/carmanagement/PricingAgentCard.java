@@ -1,4 +1,4 @@
-package com.carmanagement.agentic.cards;
+package com.carmanagement;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Produces;

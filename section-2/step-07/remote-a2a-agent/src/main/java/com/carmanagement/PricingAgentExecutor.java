@@ -1,10 +1,7 @@
-package com.carmanagement.agentic.executors;
-
-import com.carmanagement.agentic.agents.PricingAgent;
+package com.carmanagement;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Produces;
-import jakarta.inject.Inject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +16,9 @@ import org.a2aproject.sdk.spec.Task;
 import org.a2aproject.sdk.spec.TaskNotCancelableError;
 import org.a2aproject.sdk.spec.TaskState;
 import org.a2aproject.sdk.spec.TextPart;
+
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Executor for the PricingAgent.
@@ -27,14 +26,12 @@ import org.slf4j.Logger;
  */
 @ApplicationScoped
 public class PricingAgentExecutor {
-    @Inject
-    private Logger logger;
+    private static final Logger logger = LoggerFactory.getLogger(PricingAgentExecutor.class);
 
     @Produces
     public AgentExecutor agentExecutor(PricingAgent pricingAgent) {
         return new AgentExecutor() {
             @Override
-            // public void execute(RequestContext context, EventQueue eventQueue) throws JSONRPCError {
             public void execute(RequestContext context, AgentEmitter agentEmitter) throws A2AError {
                 logger.info("Remote A2A PricingAgent called");
 
