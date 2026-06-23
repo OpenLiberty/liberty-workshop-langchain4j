@@ -3,8 +3,13 @@
 
     <!-- Enable features -->
     <featureManager>
+    	<platform>jakartaee-10.0</platform>
         <platform>microprofile-7.1</platform>
-        <feature>webProfile-11.0</feature>
+        <feature>cdi</feature>
+        <feature>jsonb</feature>
+        <feature>jsonp</feature>
+        <feature>restfulWS</feature>
+        <feature>servlet</feature>
         <feature>mpConfig</feature>
     </featureManager>
 
@@ -24,7 +29,7 @@
 
     <!-- Logging configuration -->
     <logging
-        traceSpecification="*=info:dev.langchain4j.*=all:com.carmanagement.*=all:a2a.server.*=all"
+        traceSpecification="*=info:dev.langchain4j.*=all:com.carmanagement.*=all:org.a2aproject.*=all"
         maxFileSize="20"
         maxFiles="10"
         consoleLogLevel="INFO"
