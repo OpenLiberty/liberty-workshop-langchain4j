@@ -2,16 +2,6 @@ package com.carmanagement.agentic.executors;
 
 import com.carmanagement.agentic.agents.PricingAgent;
 
-import io.a2a.server.agentexecution.AgentExecutor;
-import io.a2a.server.agentexecution.RequestContext;
-import io.a2a.server.events.EventQueue;
-import io.a2a.server.tasks.TaskUpdater;
-import io.a2a.spec.JSONRPCError;
-import io.a2a.spec.Message;
-import io.a2a.spec.Part;
-import io.a2a.spec.TextPart;
-import io.a2a.spec.UnsupportedOperationError;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Inject;
@@ -19,6 +9,16 @@ import jakarta.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.a2aproject.sdk.server.agentexecution.AgentExecutor;
+import org.a2aproject.sdk.server.agentexecution.RequestContext;
+import org.a2aproject.sdk.server.tasks.AgentEmitter;
+import org.a2aproject.sdk.spec.A2AError;
+import org.a2aproject.sdk.spec.Message;
+import org.a2aproject.sdk.spec.Part;
+import org.a2aproject.sdk.spec.Task;
+import org.a2aproject.sdk.spec.TaskNotCancelableError;
+import org.a2aproject.sdk.spec.TaskState;
+import org.a2aproject.sdk.spec.TextPart;
 import org.slf4j.Logger;
 
 /**
@@ -34,23 +34,25 @@ public class PricingAgentExecutor {
     public AgentExecutor agentExecutor(PricingAgent pricingAgent) {
         return new AgentExecutor() {
             @Override
-            public void execute(RequestContext context, EventQueue eventQueue) throws JSONRPCError {
+            // public void execute(RequestContext context, EventQueue eventQueue) throws JSONRPCError {
+            public void execute(RequestContext context, AgentEmitter agentEmitter) throws A2AError {
                 logger.info("Remote A2A PricingAgent called");
 
-                TaskUpdater updater = new TaskUpdater(context, eventQueue);
+                // Mark the task as submitted and start working on it
                 if (context.getTask() == null) {
-                    updater.submit();
+                    agentEmitter.submit();
                 }
-                updater.startWork();
+                agentEmitter.startWork();
 
                 List<String> inputs = new ArrayList<>();
 
                 // Process the request message
                 Message message = context.getMessage();
-                if (message.getParts() != null) {
-                    for (Part<?> part : message.getParts()) {
+                if (message.parts() != null) {
+                    for (Part<?> part : message.parts()) {
                         if (part instanceof TextPart textPart) {
-                            inputs.add(textPart.getText());
+                            inputs.add(textPart.text());
+                            logger.debug("Text Part: {}", textPart.text());
                         }
                     }
                 }
@@ -76,13 +78,28 @@ public class PricingAgentExecutor {
                 // Return the result
                 TextPart responsePart = new TextPart(agentResponse, null);
                 List<Part<?>> parts = List.of(responsePart);
-                updater.addArtifact(parts, null, null, null);
-                updater.complete();
+
+                // Add the response as an artifact and complete the task
+                agentEmitter.addArtifact(parts);
+                agentEmitter.complete();
             }
 
             @Override
-            public void cancel(RequestContext context, EventQueue eventQueue) throws JSONRPCError {
-                throw new UnsupportedOperationError();
+            public void cancel(RequestContext context, AgentEmitter agentEmitter) throws A2AError {
+                Task task = context.getTask();
+
+                if (task.status().state() == TaskState.TASK_STATE_CANCELED) {
+                    // task already cancelled
+                    throw new TaskNotCancelableError();
+                }
+
+                if (task.status().state() == TaskState.TASK_STATE_COMPLETED) {
+                    // task already completed
+                    throw new TaskNotCancelableError();
+                }
+
+                // Cancel the task
+                agentEmitter.cancel();
             }
         };
     }

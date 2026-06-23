@@ -29,10 +29,4 @@
         maxFiles="10"
         consoleLogLevel="INFO"
     />
-
-    <!-- Basic user registry -->
-    <basicRegistry id="basic" realm="BasicRealm">
-        <user name="admin" password="admin" />
-        <user name="user" password="user" />
-    </basicRegistry>
 </server>
