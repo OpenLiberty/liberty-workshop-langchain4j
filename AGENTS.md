@@ -22,7 +22,7 @@ This is a multi-module Maven project organized into two main sections. The first
 
 The second section contains 7 steps dedicated to agentic systems, exploring agentic workflows, multi-agent collaboration, supervisor patterns, and Agent-to-Agent (A2A) communication. These are found in `section-2/step-XX/` directories, with the final state in `section-2/step-07/`.
 
-The documentation lives in the `docs/` directory and can be served locally at http://127.0.0.1:8000/ or accessed online at https://quarkus.io/quarkus-workshop-langchain4j/.
+The documentation lives in the `docs/` directory and can be served locally at http://127.0.0.1:8000/ or accessed online at https://msmiths.github.io/langchain4j-workshop/.
 
 ## Building and Running
 
@@ -120,4 +120,4 @@ For documentation, build with `cd docs && pipenv run mkdocs build --clean` or se
 
 ## Workshop Resources
 
-The workshop website is available at https://quarkus.io/quarkus-workshop-langchain4j/. Additional resources include the LangChain4j Tutorials at https://docs.langchain4j.dev/category/tutorials, the LangChain4j Documentation at https://docs.langchain4j.dev/, and the Liberty Documentation at https://openliberty.io/guides/.
+The workshop website is available at https://msmiths.github.io/langchain4j-workshop/. Additional resources include the LangChain4j Tutorials at https://docs.langchain4j.dev/category/tutorials, the LangChain4j Documentation at https://docs.langchain4j.dev/, and the Liberty Documentation at https://openliberty.io/guides/.
