@@ -9,11 +9,11 @@ Otherwise, let's get started!
 ## Vector store
 
 There are many options to store the embeddings, like
-[Infinispan](https://docs.quarkiverse.io/quarkus-langchain4j/dev/rag-infinispan-store.html){target="_blank"},
-[Pinecone](https://github.com/langchain4j/langchain4j/tree/release/1.16.x/langchain4j-pinecone){target="_blank"},
-[Qdrant](https://github.com/langchain4j/langchain4j/tree/release/1.16.x/langchain4j-qdrant){target="_blank"},
-specialized databases (like [Chroma](https://github.com/langchain4j/langchain4j/tree/release/1.16.x/langchain4j-chroma){target="_blank"}), etc.
-Here, we will use the [PostgreSQL pgVector store](https://github.com/langchain4j/langchain4j/tree/release/1.16.x/langchain4j-pgvector){target="_blank"},
+[Infinispan](https://docs.langchain4j.dev/integrations/embedding-stores/infinispan){target="_blank"},
+[Pinecone](https://docs.langchain4j.dev/integrations/embedding-stores/pinecone){target="_blank"},
+[Qdrant](https://docs.langchain4j.dev/integrations/embedding-stores/qdrant){target="_blank"},
+specialized databases (like [Chroma](https://docs.langchain4j.dev/integrations/embedding-stores/chroma){target="_blank"}), etc.
+Here, we will use the [PostgreSQL pgVector store](https://docs.langchain4j.dev/integrations/embedding-stores/pgvector){target="_blank"},
 a popular relational database. For simplicity, we will run the database with Docker or Podman. If you are not able to 
 use Docker or Podman, you can skip this step and continue to use the in memory vector store.
 

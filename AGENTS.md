@@ -4,13 +4,17 @@ This file provides guidance to agents when working with code in this repository.
 
 ## Project Overview
 
-This repository contains a comprehensive, hands-on workshop for building AI-infused applications and agentic systems using Quarkus and LangChain4j. The workshop teaches developers how to integrate Large Language Models into Quarkus applications, build intelligent chatbots with structured outputs and guardrails, implement Retrieval-Augmented Generation (RAG) patterns, use remote tools via Model Context Protocol (MCP), and design agentic systems with workflow and supervisor patterns.
+This repository contains a comprehensive, hands-on workshop for building AI-infused applications and agentic systems using Liberty, LangChain4j and LangChain4j CDI. The workshop teaches developers how to integrate Large Language Models into Liberty applications, build intelligent chatbots with structured outputs and guardrails, implement Retrieval-Augmented Generation (RAG) patterns, use remote tools via Model Context Protocol (MCP), and design agentic systems with workflow and supervisor patterns.
 
 Throughout the workshop, participants build an LLM-powered customer support chatbot for a car rental company, progressively adding features from basic LLM integration to complex multi-agent systems.
 
 ## Technology Stack
 
-The workshop uses Java 21 with Quarkus 3.34.3 and the LangChain4j Quarkiverse extension (version 1.9.1). Maven handles the build process, while the documentation is built with MkDocs using Python and Pipenv. The UI components leverage Vaadin Web Components and wc-chatbot for the chat interface.
+        <langchain4j.version>1.16.3</langchain4j.version>
+        <langchain4j.cdi.version>1.3.3</langchain4j.cdi.version>
+
+
+The workshop uses Java 21 with Liberty 26.0.0.2, LangChain4j 1.16.3 and LangChain4j 1.3.3. Maven handles the build process, while the documentation is built with MkDocs using Python and Pipenv. The UI components leverage Vaadin Web Components and wc-chatbot for the chat interface.
 
 ## Project Structure
 
@@ -24,7 +28,7 @@ The documentation lives in the `docs/` directory and can be served locally at ht
 
 You'll need Java 21 or higher, Maven 3.8 or higher, and Python 3.x with pipenv for the documentation. You'll also need an OpenAI API key or access to a compatible LLM endpoint.
 
-Each step is a self-contained Quarkus application. To run any step, navigate to its directory and execute `./mvnw quarkus:dev`. The application will start on http://localhost:8080 with Quarkus dev mode features like live reload and the dev UI enabled.
+Each step is a self-contained Liberty application. To run any step, navigate to its directory and execute `./mvnw liberty:dev`. The application will start on http://localhost:8080 with Liberty dev mode features like live reload and the dev UI enabled.
 
 To build the entire project from the root directory, run `./mvnw clean install`. This builds all modules in sequence.
 
@@ -32,13 +36,13 @@ For the documentation, navigate to the `docs` directory, install pipenv if neede
 
 ## Development Conventions
 
-AI Services are defined as interfaces annotated with `@RegisterAiService`. These services are typically `@SessionScoped` to maintain conversation continuity across multiple interactions.
+AI Services are defined as interfaces annotated with `@RegisterAIService`. These services are typically `@ApplicationScoped` to maintain conversation continuity across multiple interactions.
 
-In Section 2, Agents are defined as interfaces with the `@Agent` annotation, usually accompanied by `@SystemMessage` and `@UserMessage` annotations to define their behavior and prompts. Tools are classes with methods annotated with `@Tool` and are registered via `@ToolBox`.
+In Section 2, Agents are defined as interfaces with the various LangChain4j CDI annotations, usually accompanied by `@SystemMessage` and `@UserMessage` annotations to define their behavior and prompts. Tools are classes with methods annotated with `@Tool` and are registered via the `toolNames` attribute on the LangChain4j CDI annotations.
 
-The package structure differs between sections. Section 1 uses the simpler `dev.langchain4j.quarkus.workshop` package, while Section 2 uses `com.carmanagement` with subpackages for `agentic`, `model`, `resource`, and `service`.
+The package structure differs between sections. Section 1 uses the simpler `dev.langchain4j.workshop` package, while Section 2 uses `com.carmanagement` with subpackages for `agentic`, `models`, `resources`, and `services`.
 
-LLM configuration is handled in `application.properties`, and each step may have specific configuration requirements. API keys should be set via environment variables or properties files.
+LLM configuration is handled in `microprofile-config.properties`, and each step may have specific configuration requirements. API keys should be set via environment variables or properties files.
 
 ## Workshop Workflow
 
@@ -110,10 +114,10 @@ When describing a process, integrate the steps into flowing paragraphs rather th
 
 ## Common Commands
 
-Start a step in dev mode with `./mvnw quarkus:dev`. Build without tests using `./mvnw clean package -DskipTests`. Run tests with `./mvnw test`. Clean build artifacts with `./mvnw clean`.
+Start a step in dev mode with `./mvnw liberty:dev`. Build without tests using `./mvnw clean package -DskipTests`. Run tests with `./mvnw test`. Clean build artifacts with `./mvnw clean`.
 
 For documentation, build with `cd docs && pipenv run mkdocs build --clean` or serve with live reload using `cd docs && pipenv run mkdocs serve --livereload`.
 
 ## Workshop Resources
 
-The workshop website is available at https://quarkus.io/quarkus-workshop-langchain4j/. Additional resources include the Quarkus LangChain4j Guide at https://docs.quarkiverse.io/quarkus-langchain4j/, the LangChain4j Documentation at https://docs.langchain4j.dev/, and the Quarkus Documentation at https://quarkus.io/guides/.
+The workshop website is available at https://quarkus.io/quarkus-workshop-langchain4j/. Additional resources include the LangChain4j Tutorials at https://docs.langchain4j.dev/category/tutorials, the LangChain4j Documentation at https://docs.langchain4j.dev/, and the Liberty Documentation at https://openliberty.io/guides/.

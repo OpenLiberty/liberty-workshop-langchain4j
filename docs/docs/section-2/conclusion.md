@@ -1,9 +1,9 @@
 # Conclusion: Mastering Agentic Systems
 
-Congratulations! You've completed **Section 2: Agentic Systems** of the Quarkus LangChain4j workshop.
+Congratulations! You've completed **Section 2: Agentic Systems** of the LangChain4j workshop.
 
-Over the past seven steps, you've journeyed from simple AI agents to sophisticated distributed multi-agent systems with human oversight and multimodal capabilities.
-Let's reflect on what you've built and why these patterns matter.
+Over the past seven steps, you've journeyed from simple AI agents to sophisticated distributed multi-agent systems with
+human oversight and multimodal capabilities. Let's reflect on what you've built and why these patterns matter.
 
 ---
 
@@ -14,16 +14,17 @@ Let's reflect on what you've built and why these patterns matter.
 You started by transforming a traditional AI service into an **autonomous agent** that could use tools.
 
 **What you built:**
-- `CarWashAgent`: An agent that analyzes feedback and decides which car wash services to request
-- `CarWashTool`: A tool that the agent calls to execute car wash actions
+- `CleaningAgent`: An agent that analyzes feedback and decides which cleaning services to request
+- `CleaningTool`: A tool that the agent calls to execute car wash actions
 
 **Key concepts:**
-- **Agent autonomy**: The LLM decides when and how to use tools based on context, but you decide whether you control the flow or let an AI manage it
+- **Agent autonomy**: The LLM decides when and how to use tools based on context, but you decide whether you control the
+  flow or let an AI manage it
 - **Tool calling**: Declarative `@Tool` annotations make methods available to agents
 - **Separation of concerns**: Agents focus on reasoning; tools handle actions
 
-**Why it matters:** This pattern is fundamental to building AI systems that can take action in the real world. 
-Instead of just answering questions, agents can interact with systems, databases, and APIs to accomplish tasks.
+**Why it matters:** This pattern is fundamental to building AI systems that can take action in the real world. Instead
+of just answering questions, agents can interact with systems, databases, and APIs to accomplish tasks.
 
 ---
 
@@ -42,8 +43,8 @@ You learned how to orchestrate multiple agents working together through **workfl
 - **AgenticScope's state**: A shared key-value store for passing data between agents
 - **@Output methods**: Extract and combine results from multiple agents
 
-**Why it matters:** Real-world problems rarely fit into a single agent's capabilities. 
-Workflows let you compose specialized agents, each excellent at one task, into systems that solve complex multi-step problems.
+**Why it matters:** Real-world problems rarely fit into a single agent's capabilities. Workflows let you compose
+specialized agents, each excellent at one task, into systems that solve complex multi-step problems.
 
 ---
 
@@ -64,7 +65,9 @@ You mastered the art of **composing workflows within workflows**, unlocking trul
 - **Nested composition**: Workflows containing other workflows, up to any depth
 - **Priority routing**: Handling critical issues before routine tasks
 
-**Why it matters:** Production AI systems need to handle complex, branching logic. Nested workflows with parallel and conditional execution give you the control to build efficient, sophisticated systems while maintaining clarity and type safety.
+**Why it matters:** Production AI systems need to handle complex, branching logic. Nested workflows with parallel and
+conditional execution give you the control to build efficient, sophisticated systems while maintaining clarity and type
+safety.
 
 ---
 
@@ -75,7 +78,8 @@ You learned how to build **autonomous, context-aware orchestration** using super
 **What you built:**
 - `FleetSupervisorAgent`: AI-driven supervisor using `@SupervisorAgent` annotation
 - `FeedbackAnalysisAgent`: A unified feedback analyzer driven by `FeedbackTask` configurations
-- `FeedbackAnalysisWorkflow`: A parallel mapper workflow that runs the same agent for cleaning, maintenance, and disposition analysis
+- `FeedbackAnalysisWorkflow`: A parallel mapper workflow that runs the same agent for cleaning, maintenance, and
+  disposition analysis
 - `PricingAgent`: Vehicle valuation specialist
 - Adaptive workflow that adjusts based on business conditions
 
@@ -88,7 +92,9 @@ You learned how to build **autonomous, context-aware orchestration** using super
 - **Context-aware routing**: Decisions based on multiple factors (demand, condition, value)
 - **Flexible business logic**: Adjust behavior via prompts, not code changes
 
-**Why it matters:** Real-world systems need to adapt to changing conditions. Supervisor agents provide intelligent, context-aware orchestration that can handle complex scenarios without hardcoded logic. This makes systems more flexible and easier to maintain.
+**Why it matters:** Real-world systems need to adapt to changing conditions. Supervisor agents provide intelligent,
+context-aware orchestration that can handle complex scenarios without hardcoded logic. This makes systems more flexible
+and easier to maintain.
 
 ---
 
@@ -110,7 +116,9 @@ You learned how to add **human oversight** to autonomous systems, ensuring criti
 - **Fallback paths**: Alternative actions when proposals are rejected
 - **Audit trails**: Complete tracking of approval decisions and reasoning
 
-**Why it matters:** Not all decisions should be fully autonomous. High-stakes decisions (financial, safety, legal) often require human judgment. HITL provides a safety net while still leveraging AI for analysis and recommendations. It builds trust, ensures compliance, and maintains accountability while automating routine decisions.
+**Why it matters:** Not all decisions should be fully autonomous. High-stakes decisions (financial, safety, legal) often
+require human judgment. HITL provides a safety net while still leveraging AI for analysis and recommendations. It builds
+trust, ensures compliance, and maintains accountability while automating routine decisions.
 
 ---
 
@@ -131,7 +139,9 @@ You added **multimodal capabilities** to the car return workflow, enabling the s
 - **Enrichment pattern**: Using `outputKey` to augment existing workflow data without changing downstream agents
 - **Graceful degradation**: Agent handles missing images by returning feedback unchanged
 
-**Why it matters:** Real-world data is multimodal. Text descriptions are often incomplete or subjective. By combining visual analysis with textual feedback, AI systems can make more informed decisions. The enrichment pattern demonstrates how to add new capabilities to existing workflows with minimal disruption.
+**Why it matters:** Real-world data is multimodal. Text descriptions are often incomplete or subjective. By combining
+visual analysis with textual feedback, AI systems can make more informed decisions. The enrichment pattern demonstrates
+how to add new capabilities to existing workflows with minimal disruption.
 
 ---
 
@@ -140,11 +150,11 @@ You added **multimodal capabilities** to the car return workflow, enabling the s
 You extended beyond single-application boundaries to build **distributed multi-agent systems** using the A2A protocol.
 
 **What you built:**
-- `PricingAgent` (client): Connects to remote agents via `@A2AClientAgent`
+- `PricingAgent` (client): Connects to remote agents via `@RegisterA2AAgent`
 - Remote A2A server: Complete pricing service running independently
 - `AgentCard`: Describes remote agent capabilities
 - `AgentExecutor`: Handles A2A protocol communication
-- Two Quarkus applications communicating across HTTP
+- Two Liberty applications communicating across HTTP
 
 **Key concepts:**
 - **A2A protocol**: Open standard for agent-to-agent communication
@@ -153,7 +163,9 @@ You extended beyond single-application boundaries to build **distributed multi-a
 - **Agent discovery**: AgentCard enables clients to find and understand remote agents
 - **Protocol abstraction**: Declarative annotations hide complex protocol details
 
-**Why it matters:** Enterprise systems are inherently distributed. Different teams, departments, or organizations may develop specialized agents. A2A lets you integrate these agents seamlessly, creating ecosystems where agents from different sources collaborate to solve problems.
+**Why it matters:** Enterprise systems are inherently distributed. Different teams, departments, or organizations may
+develop specialized agents. A2A lets you integrate these agents seamlessly, creating ecosystems where agents from
+different sources collaborate to solve problems.
 
 ---
 
@@ -167,17 +179,18 @@ The agentic approach gives you **precise control over agent autonomy**:
 - **Workflows** control the structure (when agents run, in what order, under what conditions)
 - **You** maintain the overall architecture and business logic
 
-This is fundamentally different from fully autonomous agent frameworks where you describe a goal and hope the agent figures it out. 
-With Quarkus LangChain4j's agentic module, you get:
+This is fundamentally different from fully autonomous agent frameworks where you describe a goal and hope the agent
+figures it out.  With LangChain4j's agentic module, you get:
 
 - Predictable execution paths
 - Clear debugging and testing
 - Type safety throughout
 - Explicit control flow
 
-You learned about the **supervisor pattern** in Step 04, which is a powerful way to control autonomy by having a higher-level agent oversee and coordinate lower-level agents.
-The supervisor plans tasks and monitors execution, making dynamic decisions about which agents to invoke.
-The supervisor controls the flow of other agents, but the agents themselves remain autonomous within their tasks.
+You learned about the **supervisor pattern** in Step 04, which is a powerful way to control autonomy by having a
+higher-level agent oversee and coordinate lower-level agents. The supervisor plans tasks and monitors execution, making
+dynamic decisions about which agents to invoke. The supervisor controls the flow of other agents, but the agents
+themselves remain autonomous within their tasks.
 
 ### Composability and Reusability
 
@@ -213,7 +226,7 @@ Agent (reasoning) → Tool (action)
 
 **When to use:** Single autonomous decision-making with side effects
 
-**Example:** `CarWashAgent` + `CarWashTool`
+**Example:** `CleaningAgent` + `CleaningTool`
 
 ---
 
@@ -226,7 +239,7 @@ Agent A → Agent B → Agent C
 
 **When to use:** Multi-step processes where each step builds on previous results
 
-**Example:** `CarWashAgent` → `CarConditionFeedbackAgent`
+**Example:** `CleaningAgent` → `CarConditionFeedbackAgent`
 
 ---
 
@@ -429,7 +442,8 @@ Agentic systems represent a fundamental shift in how we build AI-powered applica
 - **From monoliths to composition**: Building complex behaviors from simple, reusable agents
 - **From single applications to ecosystems**: Agents collaborating across system boundaries
 
-The `quarkus-langchain4j-agentic` module gives you the tools to build these systems with the reliability, type safety, and developer experience you expect from Quarkus.
+The `langchain4j-agentic` module gives you the tools to build these systems with the reliability, type safety, and
+developer experience you expect from Liberty.
 
 You've mastered:
 - Agent autonomy and tool calling
@@ -441,9 +455,6 @@ You've mastered:
 - Human-in-the-Loop pattern for safe, controlled decision-making
 
 You're now equipped to build production-ready agentic systems that solve real-world problems.
-
-In addition, Quarkus Langchain4J also provides seamless integration with the broader Quarkus ecosystem, allowing you to leverage a wide range of extensions and tools to enhance your AI applications further.
-It also adds security features, monitoring, and scalability options that are essential for enterprise-grade AI applications.
 
 **Welcome to the future of AI application development!**
 

@@ -1,11 +1,10 @@
-# Step 01 - Introduction to Quarkus LangChain4j
+# Step 01 - Introduction to LangChain4j and LangChain4j CDI
 
 To get started, make sure you use the `step-01` directory.
 
-This step is the starting point for the workshop.
-It's a simple application that uses [LangChain4j](https://docs.langchain4j.dev/intro/) and 
-[LangChain4j CDI](https://github.com/langchain4j/langchain4j-cdi) to interact with OpenAI's gpt-4o model. It's a simple
-chatbot that we will extend in the subsequent steps.
+This step is the starting point for the workshop. It's a simple application that uses
+[LangChain4j](https://docs.langchain4j.dev/intro/) and [LangChain4j CDI](https://github.com/langchain4j/langchain4j-cdi)
+to interact with OpenAI's gpt-4o model. It's a simple chatbot that we will extend in the subsequent steps.
 
 ## Running the application
 
