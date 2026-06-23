@@ -6,7 +6,7 @@ In the previous step, you created **nested workflows** that combined sequential,
 build sophisticated multi-level orchestration.
 
 That design was intentionally concrete. Step 03 introduced separate feedback agents and a straightforward
-[`@ParallelAgent`](section-2/step-03/src/main/java/com/carmanagement/agentic/workflows/FeedbackWorkflow.java) workflow
+[`@ParallelAgent`](../../../section-2/step-03/src/main/java/com/carmanagement/agentic/workflows/FeedbackWorkflow.java) workflow
 so you could clearly see how multiple specialized agents collaborate inside a larger workflow.
 
 In this step, the business problem evolves. We are still building on the same orchestration ideas, but the addition of a
