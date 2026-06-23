@@ -24,7 +24,7 @@
     <!-- Application configuration -->
     <webApplication
         id="langchain4j-workshop"
-        location="langchain4j-workshop-1-01.war"
+        location="langchain4j-workshop.war"
         contextRoot="/">
         <classloader apiTypeVisibility="+third-party" />
     </webApplication>
