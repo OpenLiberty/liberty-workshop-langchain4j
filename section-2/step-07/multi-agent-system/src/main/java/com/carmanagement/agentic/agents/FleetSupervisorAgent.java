@@ -35,6 +35,7 @@ public interface FleetSupervisorAgent {
         Integer carYear,
         Integer carNumber,
         String carCondition,
+        String feedback,
         FeedbackAnalysisResults feedbackAnalysisResults
     );
 
@@ -59,6 +60,7 @@ public interface FleetSupervisorAgent {
         Integer carYear,
         Integer carNumber,
         String carCondition,
+        String feedback,
         FeedbackAnalysisResults feedbackAnalysisResults
     ) {
         boolean dispositionRequired = feedbackAnalysisResults.dispositionAnalysis() != null &&
@@ -101,7 +103,8 @@ public interface FleetSupervisorAgent {
             
             Car: %d %s %s (#%d)
             Current Condition: %s
-            
+            Feedback: %s
+
             Cleaning Analysis: %s
             Maintenance Analysis: %s
             Disposition Analysis: %s
@@ -111,6 +114,7 @@ public interface FleetSupervisorAgent {
             carModel,
             carNumber,
             carCondition,
+            feedback,
             feedbackAnalysisResults.cleaningAnalysis(),
             feedbackAnalysisResults.maintenanceAnalysis(),
             dispositionRequired ? dispositionMessage : noDispositionMessage
