@@ -115,7 +115,7 @@ public interface FleetSupervisorAgent {
             carModel,
             carNumber,
             carCondition,
-            String feedback,
+            feedback,
             feedbackAnalysisResults.cleaningAnalysis(),
             feedbackAnalysisResults.maintenanceAnalysis(),
             dispositionRequired ? dispositionMessage : noDispositionMessage
