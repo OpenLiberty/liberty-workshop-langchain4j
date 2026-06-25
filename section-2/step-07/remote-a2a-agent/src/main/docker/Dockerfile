@@ -48,8 +48,5 @@ RUN configure.sh
 
 FROM base as image
 
-# Copy Postgres JDBC driver
-COPY --chown=1001:0  src/main/liberty/postgresql/*.jar /opt/ibm/wlp/usr/shared/resources
-
 # Copy application
 COPY --chown=1001:0  target/langchain4j-workshop.war /config/apps/langchain4j-workshop.war

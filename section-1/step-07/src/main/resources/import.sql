@@ -1,6 +1,8 @@
 -- Customers
 CREATE SEQUENCE IF NOT EXISTS customer_seq;
 
+-- Drop the customers table and recrete it
+DROP TABLE IF EXISTS customers CASCADE;
 CREATE TABLE IF NOT EXISTS customers (
     id INT PRIMARY KEY DEFAULT nextval('customer_seq') NOT NULL,
     first_name VARCHAR(255) NOT NULL,
@@ -29,6 +31,8 @@ ALTER SEQUENCE customer_seq RESTART WITH 5;
 -- Bookings
 CREATE SEQUENCE IF NOT EXISTS booking_seq;
 
+-- Drop the bookings table and recrete it
+DROP TABLE IF EXISTS bookings;
 CREATE TABLE IF NOT EXISTS bookings (
     id INT PRIMARY KEY DEFAULT nextval('booking_seq') NOT NULL,
     dateFrom DATE,
