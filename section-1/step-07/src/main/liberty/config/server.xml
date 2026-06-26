@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<server description="LangChain4J Workshop Server">
+<server description="Liberty LangChain4J Workshop Server">
 
     <!-- Enable features -->
     <!-- -8<- [start:features]       -->

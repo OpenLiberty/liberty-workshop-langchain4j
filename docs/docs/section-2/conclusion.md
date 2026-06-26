@@ -1,6 +1,6 @@
 # Conclusion: Mastering Agentic Systems
 
-Congratulations! You've completed **Section 2: Agentic Systems** of the LangChain4j workshop.
+Congratulations! You've completed **Section 2: Agentic Systems** of the Liberty LangChain4j workshop.
 
 Over the past seven steps, you've journeyed from simple AI agents to sophisticated distributed multi-agent systems with
 human oversight and multimodal capabilities. Let's reflect on what you've built and why these patterns matter.
