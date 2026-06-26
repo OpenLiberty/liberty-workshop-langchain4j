@@ -1,6 +1,6 @@
-# LangChain4j Workshop
+# Liberty LangChain4j Workshop
 
-Welcome to the LangChain4j Workshop!  
+Welcome to the Liberty LangChain4j Workshop!  
 
 This workshop will guide you through building **AI-infused applications** and **agentic systems** using 
 [LangChain4j](https://docs.langchain4j.dev/intro/) and 
@@ -52,7 +52,7 @@ Each step builds on the previous one, with the results stored in separate direct
 
 ---
 
-![LangChain4j Workshop Architecture](images/global-architecture.png)
+![Liberty LangChain4j Workshop Architecture](images/global-architecture.png)
 
 ---
 

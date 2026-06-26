@@ -4,7 +4,7 @@
          xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
          version="6.0">
 
-    <display-name>LangChain4J Workshop</display-name>
+    <display-name>Liberty LangChain4J Workshop</display-name>
 
     <!-- Welcome file list -->
     <welcome-file-list>
