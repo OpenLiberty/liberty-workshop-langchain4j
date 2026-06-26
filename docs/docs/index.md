@@ -25,18 +25,18 @@ Throughout the workshop, you will create an LLM-powered customer support chatbot
 
 The workshop is divided into two sections:
 
-- **Section 1 – AI-infused application (11 steps):**  
+- **Section 1 – AI-infused application (10 steps):**  
   You’ll progressively build a chatbot, starting with basic LLM integration and adding features such as structured
   outputs, guardrails, and RAG.
 
-- **Section 2 – Agentic systems (4 steps):**  
+- **Section 2 – Agentic systems (7 steps):**  
   You'll build an AI agent that implements an agentic workflow that use planning, supervision, and collaboration
   patterns.
 
 Each step builds on the previous one, with the results stored in separate directories (`step-XX`):
 
 - Final solution for Section 1: `section-1/step-10`
-- Final solution for Section 2: `section-2/step-04`
+- Final solution for Section 2: `section-2/step-07`
 
 ---
 

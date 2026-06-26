@@ -18,7 +18,7 @@ The workshop uses Java 21 with Liberty 26.0.0.2, LangChain4j 1.16.3 and LangChai
 
 ## Project Structure
 
-This is a multi-module Maven project organized into two main sections. The first section contains 11 steps focused on AI-infused applications, covering topics from basic LLM integration and AI Services through prompt engineering, structured outputs, guardrails, RAG patterns, MCP integration, and observability. These steps are located in `section-1/step-XX/` directories, with the final state available in `section-1/step-11/`.
+This is a multi-module Maven project organized into two main sections. The first section contains 10 steps focused on AI-infused applications, covering topics from basic LLM integration and AI Services through prompt engineering, structured outputs, guardrails, RAG patterns, MCP integration, and observability. These steps are located in `section-1/step-XX/` directories, with the final state available in `section-1/step-10/`.
 
 The second section contains 7 steps dedicated to agentic systems, exploring agentic workflows, multi-agent collaboration, supervisor patterns, and Agent-to-Agent (A2A) communication. These are found in `section-2/step-XX/` directories, with the final state in `section-2/step-07/`.
 
