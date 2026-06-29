@@ -19,6 +19,14 @@ You will learn how to:
 
 ---
 
+## Acknowledgement
+
+This workshop builds upon content from the
+[Quarkus LangChain3j Workshop](https://quarkus.io/quarkus-workshop-langchain4j/). We gratefully acknowledge the
+contributors to the Quarkus LangChain4j Workshop for their excellent work and for permitting us to adapt and extend it.
+
+---
+
 ## Workshop Scenario
 
 Throughout the workshop, you will create an LLM-powered customer support chatbot for a car rental company.
